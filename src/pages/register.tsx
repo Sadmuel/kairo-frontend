@@ -14,25 +14,40 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
-      navigate('/dashboard');
+      await register({ email, password, name });
+      navigate('/login', {
+        state: { message: 'Registration successful! Please sign in.' },
+      });
     } catch (err) {
-      setError(getErrorMessage(err, 'Invalid credentials'));
+      setError(getErrorMessage(err, 'Registration failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -43,7 +58,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">Kairo</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardDescription>Create your account</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -53,6 +68,18 @@ export default function Login() {
                 {error}
               </div>
             )}
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="John Doe"
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -74,6 +101,19 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={8}
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
                 placeholder="••••••••"
               />
             </div>
@@ -81,13 +121,13 @@ export default function Login() {
 
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link to="/register" className="text-primary hover:underline">
-                Register
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary hover:underline">
+                Sign in
               </Link>
             </p>
           </CardFooter>
