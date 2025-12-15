@@ -4,6 +4,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
   ReactNode,
 } from 'react';
 import { authService, tokenStore } from '@/services';
@@ -21,19 +22,31 @@ interface AuthContextType {
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Module-level flag to prevent duplicate refresh calls (survives StrictMode remounts)
+let isInitializing = false;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const initialized = useRef(false);
 
   const isAuthenticated = !!user;
 
   // Try to restore session on mount
   useEffect(() => {
+    // Prevent duplicate initialization (React StrictMode calls useEffect twice)
+    if (initialized.current || isInitializing) {
+      return;
+    }
+    isInitializing = true;
+    initialized.current = true;
+
     const initAuth = async () => {
       const refreshToken = tokenStore.getRefreshToken();
 
       if (!refreshToken) {
         setIsLoading(false);
+        isInitializing = false;
         return;
       }
 
@@ -48,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokenStore.clearTokens();
       } finally {
         setIsLoading(false);
+        isInitializing = false;
       }
     };
 
