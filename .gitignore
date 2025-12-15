@@ -26,6 +26,9 @@ vite.config.d.ts
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Claude Code
+.claude/
 .DS_Store
 *.suo
 *.ntvs*
