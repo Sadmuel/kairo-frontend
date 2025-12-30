@@ -1,0 +1,147 @@
+# .coderabbit.yaml - Kairo Frontend (React + TypeScript)
+language: 'en'
+
+early_access: false
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - main
+      - development
+
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+
+  path_filters:
+    - '!dist/**'
+    - '!build/**'
+    - '!node_modules/**'
+    - '!coverage/**'
+    - '!**/*.test.tsx'
+    - '!**/*.test.ts'
+    - '!**/*.spec.tsx'
+    - '!**/*.spec.ts'
+
+  path_instructions:
+    # Components
+    - path: 'src/components/**/*.tsx'
+      instructions: |
+        - Verify proper React hooks usage (rules of hooks)
+        - Check for missing dependencies in useEffect/useCallback/useMemo
+        - Ensure components follow single responsibility principle
+        - Look for proper prop typing with TypeScript interfaces
+        - Check for potential memory leaks (cleanup in useEffect)
+        - Verify accessibility attributes (aria-*, role, alt text)
+        - Flag inline styles - prefer CSS modules or styled-components
+        - Check for proper key props in lists
+
+    # Pages/Views
+    - path: 'src/pages/**/*.tsx'
+      instructions: |
+        - Verify proper data fetching patterns
+        - Check for loading and error states
+        - Ensure proper route parameter handling
+        - Look for SEO considerations if applicable
+        - Verify proper component composition
+
+    # Hooks
+    - path: 'src/hooks/**/*.ts'
+      instructions: |
+        - Ensure custom hooks follow 'use' naming convention
+        - Verify proper dependency arrays
+        - Check for proper cleanup functions
+        - Look for opportunities to memoize expensive computations
+        - Ensure hooks are reusable and not too specific
+
+    # Context & State
+    - path: 'src/context/**/*.tsx'
+      instructions: |
+        - Verify proper context structure
+        - Check for unnecessary re-renders (consider splitting contexts)
+        - Ensure proper TypeScript typing for context values
+        - Look for proper provider hierarchy
+
+    - path: 'src/store/**/*.ts'
+      instructions: |
+        - Verify proper state structure and normalization
+        - Check for immutable state updates
+        - Ensure actions are properly typed
+        - Look for selector optimization opportunities
+
+    # Services & API
+    - path: 'src/services/**/*.ts'
+      instructions: |
+        - Verify proper error handling for API calls
+        - Check for proper typing of request/response data
+        - Ensure consistent API client usage (axios/fetch)
+        - Look for proper request cancellation handling
+        - Verify proper authentication header handling
+
+    - path: 'src/api/**/*.ts'
+      instructions: |
+        - Ensure API endpoints are properly typed
+        - Check for proper error response handling
+        - Verify request/response interceptors if applicable
+        - Look for hardcoded URLs (should use environment variables)
+
+    # Types & Interfaces
+    - path: 'src/types/**/*.ts'
+      instructions: |
+        - Verify types are properly exported
+        - Check for proper use of interface vs type
+        - Ensure no 'any' types without justification
+        - Look for proper generic usage where applicable
+        - Verify naming conventions (I prefix for interfaces if used)
+
+    # Utils & Helpers
+    - path: 'src/utils/**/*.ts'
+      instructions: |
+        - Verify functions are pure where possible
+        - Check for proper TypeScript typing
+        - Ensure utility functions are well-documented
+        - Look for edge case handling
+
+    # Styles
+    - path: 'src/**/*.css'
+      instructions: |
+        - Check for unused styles
+        - Verify responsive design considerations
+        - Look for proper CSS variable usage for theming
+        - Ensure consistent naming conventions (BEM, CSS modules)
+
+    - path: 'src/**/*.module.css'
+      instructions: |
+        - Verify proper CSS module usage
+        - Check for class naming conventions
+        - Look for proper composition patterns
+
+    # Config files
+    - path: 'src/config/**/*.ts'
+      instructions: |
+        - Ensure environment variables are properly typed
+        - Check for no hardcoded sensitive values
+        - Verify proper default values
+
+    # Router
+    - path: 'src/router/**/*.tsx'
+      instructions: |
+        - Verify proper route protection for authenticated routes
+        - Check for proper lazy loading of route components
+        - Ensure proper 404/fallback handling
+        - Look for proper route typing
+
+  tools:
+    eslint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    biome:
+      enabled: false
+
+chat:
+  auto_reply: true
