@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { getErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
@@ -14,8 +14,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
+interface LocationState {
+  from?: Location;
+}
+
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -29,8 +34,11 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      await login({ email, password });
-      navigate('/dashboard');
+      await login({ email: email.trim(), password });
+      // Navigate to the original destination or default to dashboard
+      const state = location.state as LocationState | null;
+      const destination = state?.from?.pathname ?? '/dashboard';
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, 'Invalid credentials'));
     } finally {

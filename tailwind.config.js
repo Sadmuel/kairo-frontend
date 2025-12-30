@@ -11,7 +11,6 @@ export default {
     				DEFAULT: 'hsl(var(--muted))',
     				foreground: 'hsl(var(--muted-foreground))'
     			},
-    			'muted-foreground': '#737373',
     			border: 'hsl(var(--border))',
     			primary: {
     				DEFAULT: 'hsl(var(--primary))',

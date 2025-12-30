@@ -1,6 +1,12 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.API_URL
+const apiUrl = import.meta.env.VITE_API_URL as string | undefined
+
+if (!apiUrl) {
+  throw new Error('VITE_API_URL environment variable is not configured')
+}
+
+export const API_URL = apiUrl
 
 // Token store - keeps access token in memory for security
 let accessToken: string | null = null
@@ -42,18 +48,25 @@ api.interceptors.request.use((config) => {
 
 // Token refresh state - prevents race conditions
 let isRefreshing = false
-let refreshSubscribers: ((token: string) => void)[] = []
 
-function subscribeTokenRefresh(callback: (token: string) => void) {
-  refreshSubscribers.push(callback)
+interface RefreshSubscriber {
+  resolve: (token: string) => void
+  reject: (error: unknown) => void
+}
+
+let refreshSubscribers: RefreshSubscriber[] = []
+
+function subscribeTokenRefresh(subscriber: RefreshSubscriber) {
+  refreshSubscribers.push(subscriber)
 }
 
 function onTokenRefreshed(token: string) {
-  refreshSubscribers.forEach((callback) => callback(token))
+  refreshSubscribers.forEach((subscriber) => subscriber.resolve(token))
   refreshSubscribers = []
 }
 
-function onRefreshFailed() {
+function onRefreshFailed(error: unknown) {
+  refreshSubscribers.forEach((subscriber) => subscriber.reject(error))
   refreshSubscribers = []
 }
 
@@ -77,10 +90,13 @@ api.interceptors.response.use(
 
       // If already refreshing, wait for the refresh to complete
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-            resolve(api(originalRequest))
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh({
+            resolve: (token: string) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`
+              resolve(api(originalRequest))
+            },
+            reject,
           })
         })
       }
@@ -108,9 +124,9 @@ api.interceptors.response.use(
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         return api(originalRequest)
-      } catch {
-        // Refresh failed - clear tokens and redirect to login
-        onRefreshFailed()
+      } catch (refreshError) {
+        // Refresh failed - reject all queued requests, clear tokens and redirect to login
+        onRefreshFailed(refreshError)
         isRefreshing = false
         tokenStore.clearTokens()
         window.location.href = '/login'

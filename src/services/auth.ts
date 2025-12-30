@@ -1,8 +1,6 @@
 import axios from 'axios'
-import { api } from '@/services/api'
-import type { User, RegisterDto, LoginDto, AuthResponse } from '@/types'
-
-const API_URL = import.meta.env.API_URL
+import { api, API_URL } from '@/services/api'
+import type { User, RegisterDto, LoginDto, AuthResponse, RefreshTokenDto } from '@/types'
 
 export const authService = {
   async register(data: RegisterDto): Promise<User> {
@@ -15,11 +13,9 @@ export const authService = {
     return response.data
   },
 
-  async refresh(refreshToken: string): Promise<AuthResponse> {
+  async refresh(data: RefreshTokenDto): Promise<AuthResponse> {
     // Use plain axios to avoid interceptor interference
-    const response = await axios.post<AuthResponse>(`${API_URL}/auth/refresh`, {
-      refreshToken,
-    })
+    const response = await axios.post<AuthResponse>(`${API_URL}/auth/refresh`, data)
     return response.data
   },
 

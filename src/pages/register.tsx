@@ -16,7 +16,7 @@ import {
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, login } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,11 +41,14 @@ export default function Register() {
 
     setIsSubmitting(true);
 
+    const trimmedEmail = email.trim();
+    const trimmedName = name.trim();
+
     try {
-      await register({ email, password, name });
-      navigate('/login', {
-        state: { message: 'Registration successful! Please sign in.' },
-      });
+      await register({ email: trimmedEmail, password, name: trimmedName });
+      // Auto-login after successful registration
+      await login({ email: trimmedEmail, password });
+      navigate('/dashboard');
     } catch (err) {
       setError(getErrorMessage(err, 'Registration failed'));
     } finally {
@@ -101,7 +104,6 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
                 placeholder="••••••••"
               />
             </div>

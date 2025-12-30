@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         // Try to refresh the token
-        const response = await authService.refresh(refreshToken);
+        const response = await authService.refresh({ refreshToken });
         tokenStore.setAccessToken(response.accessToken);
         tokenStore.setRefreshToken(response.refreshToken);
         setUser(response.user);
@@ -85,8 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (refreshToken) {
       try {
         await authService.logout(refreshToken);
-      } catch {
-        // Ignore logout errors
+      } catch (error) {
+        // Log in development, but always clear local state
+        if (import.meta.env.DEV) {
+          console.warn('Logout API call failed:', error);
+        }
       }
     }
 

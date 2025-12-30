@@ -1,12 +1,19 @@
+import { useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
+    setIsLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -14,8 +21,8 @@ export default function Dashboard() {
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <Button variant="outline" onClick={handleLogout}>
-            Logout
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
           </Button>
         </div>
 
