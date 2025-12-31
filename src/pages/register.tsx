@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { getErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
@@ -14,33 +14,43 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-interface LocationState {
-  from?: Location;
-}
-
-export default function Login() {
+export default function Register() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
+  const { register, login } = useAuth();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
     setIsSubmitting(true);
 
+    const trimmedEmail = email.trim();
+    const trimmedName = name.trim();
+
     try {
-      await login({ email: email.trim(), password });
-      // Navigate to the original destination or default to dashboard
-      const state = location.state as LocationState | null;
-      const destination = state?.from?.pathname ?? '/dashboard';
-      navigate(destination, { replace: true });
+      await register({ email: trimmedEmail, password, name: trimmedName });
+      // Auto-login after successful registration
+      await login({ email: trimmedEmail, password });
+      navigate('/dashboard');
     } catch (err) {
-      setError(getErrorMessage(err, 'Invalid credentials'));
+      setError(getErrorMessage(err, 'Registration failed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -51,7 +61,7 @@ export default function Login() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">Kairo</CardTitle>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardDescription>Create your account</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -61,6 +71,18 @@ export default function Login() {
                 {error}
               </div>
             )}
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder="John Doe"
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -85,17 +107,29 @@ export default function Login() {
                 placeholder="••••••••"
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
+            </div>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? 'Creating account...' : 'Create account'}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link to="/register" className="text-primary hover:underline">
-                Register
+              Already have an account?{' '}
+              <Link to="/login" className="text-primary hover:underline">
+                Sign in
               </Link>
             </p>
           </CardFooter>
