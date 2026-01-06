@@ -39,10 +39,15 @@ export default function Register() {
       return;
     }
 
-    setIsSubmitting(true);
-
     const trimmedEmail = email.trim();
     const trimmedName = name.trim();
+
+    if (trimmedName === '') {
+      setError('Name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       await register({ email: trimmedEmail, password, name: trimmedName });
