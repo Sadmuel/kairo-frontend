@@ -34,6 +34,9 @@ export function useCreateTimeBlock() {
       });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
     },
+    onError: (error, variables) => {
+      console.error('Failed to create time block:', error, { dayId: variables.dayId });
+    },
   });
 }
 
@@ -56,10 +59,16 @@ export function useDeleteTimeBlock() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => timeBlocksService.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
+    mutationFn: ({ id }: { id: string; dayId: string }) =>
+      timeBlocksService.delete(id),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: timeBlocksKeys.byDay(variables.dayId),
+      });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
+    },
+    onError: (error, variables) => {
+      console.error('Failed to delete time block:', error, { id: variables.id, dayId: variables.dayId });
     },
   });
 }

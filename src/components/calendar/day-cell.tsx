@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
 import { isToday, isSameMonth } from '@/lib/date-utils';
 import type { Day } from '@/types/calendar';
+import { DEFAULT_BLOCK_COLOR } from '@/types/calendar';
 
 interface DayCellProps {
   date: Date;
@@ -45,11 +46,7 @@ export function DayCell({ date, currentMonth, day, onClick }: DayCellProps) {
       {hasTimeBlocks && (
         <div className="mt-0.5 flex flex-wrap gap-0.5 sm:mt-1 sm:gap-1">
           {day.timeBlocks.slice(0, 3).map((block) => (
-            <div
-              key={block.id}
-              className="h-1 w-1 rounded-full sm:h-1.5 sm:w-1.5"
-              style={{ backgroundColor: block.color || '#A5D8FF' }}
-            />
+            <Dot key={block.id} color={block.color} />
           ))}
           {day.timeBlocks.length > 3 && (
             <span className="hidden text-[10px] text-muted-foreground sm:inline">
@@ -77,5 +74,18 @@ export function DayCell({ date, currentMonth, day, onClick }: DayCellProps) {
         </div>
       )}
     </button>
+  );
+}
+
+interface DotProps {
+  color: string | null;
+}
+
+function Dot({ color }: DotProps) {
+  return (
+    <div
+      className="h-1 w-1 rounded-full bg-[--dot-color] sm:h-1.5 sm:w-1.5"
+      style={{ '--dot-color': color || DEFAULT_BLOCK_COLOR } as React.CSSProperties}
+    />
   );
 }

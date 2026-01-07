@@ -58,7 +58,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   const handleDelete = async () => {
     setDeleteError(null);
     try {
-      await deleteTimeBlock.mutateAsync(timeBlock.id);
+      await deleteTimeBlock.mutateAsync({ id: timeBlock.id, dayId });
       setIsDeleteDialogOpen(false);
     } catch (error) {
       console.error('Failed to delete time block:', error);
@@ -90,6 +90,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
         >
           {/* Drag handle - larger touch target on mobile */}
           <button
+            aria-label="Drag to reorder time block"
             {...attributes}
             {...listeners}
             className="mt-0.5 flex h-10 w-10 cursor-grab items-center justify-center touch-none text-muted-foreground hover:text-foreground sm:h-auto sm:w-auto"
@@ -132,6 +133,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
+                  aria-label="Edit time block"
                   className="h-10 w-10 sm:h-9 sm:w-9"
                   onClick={() => setIsEditModalOpen(true)}
                 >
@@ -140,6 +142,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
+                  aria-label="Delete time block"
                   className="h-10 w-10 text-destructive hover:text-destructive sm:h-9 sm:w-9"
                   onClick={() => setIsDeleteDialogOpen(true)}
                 >
@@ -148,6 +151,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                 <Button
                   variant="ghost"
                   size="icon"
+                  aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
                   className="h-10 w-10 sm:h-9 sm:w-9"
                   onClick={() => setIsExpanded(!isExpanded)}
                 >

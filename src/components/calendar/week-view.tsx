@@ -20,6 +20,11 @@ export function WeekView() {
     return new Map(days.map((day) => [formatDateForApi(new Date(day.date)), day]));
   }, [days]);
 
+  const formattedHours = useMemo(
+    () => HOURS.map((h) => format(new Date().setHours(h, 0), 'h a')),
+    []
+  );
+
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     setCurrentView('day');
@@ -41,6 +46,7 @@ export function WeekView() {
               <button
                 key={date.toISOString()}
                 onClick={() => handleDayClick(date)}
+                aria-label={`View events for ${format(date, 'EEEE, MMMM d')}`}
                 className={cn(
                   'border-r px-1 py-2 text-center transition-colors hover:bg-muted/80 sm:px-2 sm:py-3',
                   isToday(date) && 'bg-primary/10'
@@ -66,13 +72,13 @@ export function WeekView() {
             <div className="grid min-h-[800px] grid-cols-8">
               {/* Time labels column */}
               <div className="sticky left-0 z-10 border-r bg-background">
-                {HOURS.map((hour) => (
+                {formattedHours.map((label, i) => (
                   <div
-                    key={hour}
+                    key={HOURS[i]}
                     className="flex h-10 items-center justify-end border-b pr-1 sm:h-12 sm:pr-2"
                   >
                     <span className="text-[10px] text-muted-foreground sm:text-xs">
-                      {format(new Date().setHours(hour, 0), 'h a')}
+                      {label}
                     </span>
                   </div>
                 ))}
