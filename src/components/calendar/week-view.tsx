@@ -17,8 +17,7 @@ export function WeekView() {
 
   const daysMap = useMemo(() => {
     if (!days) return new Map<string, Day>();
-    // Normalize ISO date strings to YYYY-MM-DD format for lookup
-    return new Map(days.map((day) => [day.date.split('T')[0], day]));
+    return new Map(days.map((day) => [formatDateForApi(new Date(day.date)), day]));
   }, [days]);
 
   const handleDayClick = (date: Date) => {

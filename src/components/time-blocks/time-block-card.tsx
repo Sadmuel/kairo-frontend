@@ -1,7 +1,8 @@
+'use client';
+
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useSortable, CSS } from '@/components/ui/sortable-context';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
@@ -22,6 +23,8 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [toggleError, setToggleError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const updateTimeBlock = useUpdateTimeBlock();
   const deleteTimeBlock = useDeleteTimeBlock();
 
@@ -40,15 +43,34 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   };
 
   const handleToggleComplete = async () => {
-    await updateTimeBlock.mutateAsync({
-      id: timeBlock.id,
-      data: { isCompleted: !timeBlock.isCompleted },
-    });
+    setToggleError(null);
+    try {
+      await updateTimeBlock.mutateAsync({
+        id: timeBlock.id,
+        data: { isCompleted: !timeBlock.isCompleted },
+      });
+    } catch (error) {
+      console.error('Failed to toggle time block completion:', error);
+      setToggleError('Failed to update. Please try again.');
+    }
   };
 
   const handleDelete = async () => {
-    await deleteTimeBlock.mutateAsync(timeBlock.id);
-    setIsDeleteDialogOpen(false);
+    setDeleteError(null);
+    try {
+      await deleteTimeBlock.mutateAsync(timeBlock.id);
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to delete time block:', error);
+      setDeleteError('Failed to delete. Please try again.');
+    }
+  };
+
+  const handleDeleteDialogChange = (open: boolean) => {
+    setIsDeleteDialogOpen(open);
+    if (!open) {
+      setDeleteError(null);
+    }
   };
 
   return (
@@ -100,6 +122,9 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                 <p className="text-xs text-muted-foreground sm:text-sm">
                   {formatTime(timeBlock.startTime)} - {formatTime(timeBlock.endTime)}
                 </p>
+                {toggleError && (
+                  <p className="text-xs text-destructive mt-1">{toggleError}</p>
+                )}
               </div>
 
               {/* Action buttons - min 44px touch targets on mobile */}
@@ -161,13 +186,15 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
 
       <ConfirmDialog
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={handleDeleteDialogChange}
         title="Delete Time Block"
         description={`Are you sure you want to delete "${timeBlock.name}"? This will also delete all notes in this time block.`}
         confirmLabel="Delete"
         variant="destructive"
         onConfirm={handleDelete}
         isLoading={deleteTimeBlock.isPending}
+        loadingLabel="Deleting..."
+        error={deleteError}
       />
     </>
   );

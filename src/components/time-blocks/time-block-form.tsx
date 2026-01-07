@@ -7,28 +7,35 @@ import { BLOCK_COLORS, DEFAULT_BLOCK_COLOR } from '@/types/calendar';
 import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 
-interface TimeBlockFormProps {
+interface TimeBlockFormCreateProps {
+  mode: 'create';
   dayId: string;
-  timeBlock?: TimeBlock;
-  onSubmit: (data: CreateTimeBlockDto | UpdateTimeBlockDto) => Promise<void>;
+  onSubmit: (data: CreateTimeBlockDto) => Promise<void>;
   onCancel: () => void;
   isPending?: boolean;
 }
 
-export function TimeBlockForm({
-  dayId,
-  timeBlock,
-  onSubmit,
-  onCancel,
-  isPending,
-}: TimeBlockFormProps) {
+interface TimeBlockFormEditProps {
+  mode: 'edit';
+  dayId: string;
+  timeBlock: TimeBlock;
+  onSubmit: (data: UpdateTimeBlockDto) => Promise<void>;
+  onCancel: () => void;
+  isPending?: boolean;
+}
+
+type TimeBlockFormProps = TimeBlockFormCreateProps | TimeBlockFormEditProps;
+
+export function TimeBlockForm(props: TimeBlockFormProps) {
+  const { dayId, onSubmit, onCancel, isPending } = props;
+  const isEdit = props.mode === 'edit';
+  const timeBlock = isEdit ? props.timeBlock : undefined;
+
   const [name, setName] = useState(timeBlock?.name || '');
   const [startTime, setStartTime] = useState(timeBlock?.startTime || '09:00');
   const [endTime, setEndTime] = useState(timeBlock?.endTime || '10:00');
   const [color, setColor] = useState(timeBlock?.color || DEFAULT_BLOCK_COLOR);
   const [error, setError] = useState<string | null>(null);
-
-  const isEdit = !!timeBlock;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -44,11 +51,22 @@ export function TimeBlockForm({
       return;
     }
 
-    const data = isEdit
-      ? { name, startTime, endTime, color }
-      : { name, startTime, endTime, color, dayId };
-
-    await onSubmit(data);
+    if (isEdit) {
+      await (onSubmit as (data: UpdateTimeBlockDto) => Promise<void>)({
+        name,
+        startTime,
+        endTime,
+        color,
+      });
+    } else {
+      await (onSubmit as (data: CreateTimeBlockDto) => Promise<void>)({
+        name,
+        startTime,
+        endTime,
+        color,
+        dayId,
+      });
+    }
   };
 
   return (
@@ -100,6 +118,7 @@ export function TimeBlockForm({
               )}
               style={{ backgroundColor: c.value }}
               title={c.name}
+              aria-label={c.name}
               disabled={isPending}
             />
           ))}

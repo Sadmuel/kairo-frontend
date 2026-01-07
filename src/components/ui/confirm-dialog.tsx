@@ -18,6 +18,8 @@ interface ConfirmDialogProps {
   variant?: 'default' | 'destructive';
   onConfirm: () => void;
   isLoading?: boolean;
+  loadingLabel?: string;
+  error?: string | null;
 }
 
 export function ConfirmDialog({
@@ -30,6 +32,8 @@ export function ConfirmDialog({
   variant = 'default',
   onConfirm,
   isLoading = false,
+  loadingLabel,
+  error = null,
 }: ConfirmDialogProps) {
   const handleConfirm = () => {
     onConfirm();
@@ -41,6 +45,9 @@ export function ConfirmDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
+          {error && (
+            <p className="text-sm text-destructive mt-2">{error}</p>
+          )}
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
@@ -55,7 +62,7 @@ export function ConfirmDialog({
             onClick={handleConfirm}
             disabled={isLoading}
           >
-            {isLoading ? 'Deleting...' : confirmLabel}
+            {isLoading ? (loadingLabel ?? `${confirmLabel}...`) : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

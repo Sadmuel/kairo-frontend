@@ -25,15 +25,17 @@ export function TimeBlockModal({
   const updateTimeBlock = useUpdateTimeBlock();
   const isEdit = !!timeBlock;
 
-  const handleSubmit = async (data: CreateTimeBlockDto | UpdateTimeBlockDto) => {
-    if (isEdit) {
-      await updateTimeBlock.mutateAsync({
-        id: timeBlock.id,
-        data: data as UpdateTimeBlockDto,
-      });
-    } else {
-      await createTimeBlock.mutateAsync(data as CreateTimeBlockDto);
-    }
+  const handleCreate = async (data: CreateTimeBlockDto) => {
+    await createTimeBlock.mutateAsync(data);
+    onOpenChange(false);
+  };
+
+  const handleUpdate = async (data: UpdateTimeBlockDto) => {
+    if (!timeBlock) return;
+    await updateTimeBlock.mutateAsync({
+      id: timeBlock.id,
+      data,
+    });
     onOpenChange(false);
   };
 
@@ -45,13 +47,24 @@ export function TimeBlockModal({
             {isEdit ? 'Edit Time Block' : 'Create Time Block'}
           </DialogTitle>
         </DialogHeader>
-        <TimeBlockForm
-          dayId={dayId}
-          timeBlock={timeBlock}
-          onSubmit={handleSubmit}
-          onCancel={() => onOpenChange(false)}
-          isPending={createTimeBlock.isPending || updateTimeBlock.isPending}
-        />
+        {isEdit && timeBlock ? (
+          <TimeBlockForm
+            mode="edit"
+            dayId={dayId}
+            timeBlock={timeBlock}
+            onSubmit={handleUpdate}
+            onCancel={() => onOpenChange(false)}
+            isPending={updateTimeBlock.isPending}
+          />
+        ) : (
+          <TimeBlockForm
+            mode="create"
+            dayId={dayId}
+            onSubmit={handleCreate}
+            onCancel={() => onOpenChange(false)}
+            isPending={createTimeBlock.isPending}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

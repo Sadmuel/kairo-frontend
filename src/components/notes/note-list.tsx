@@ -1,18 +1,10 @@
+'use client';
+
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
+  SortableList,
   arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+  type DragEndEvent,
+} from '@/components/ui/sortable-context';
 import { NoteItem } from './note-item';
 import { NoteForm } from './note-form';
 import { useReorderNotes } from '@/hooks/use-notes';
@@ -26,19 +18,17 @@ interface NoteListProps {
 export function NoteList({ timeBlockId, notes }: NoteListProps) {
   const reorderNotes = useReorderNotes();
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
       const oldIndex = notes.findIndex((n) => n.id === active.id);
       const newIndex = notes.findIndex((n) => n.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        console.warn('Drag reorder failed: note not found in list');
+        return;
+      }
 
       const newOrder = arrayMove(notes, oldIndex, newIndex);
       const orderedIds = newOrder.map((n) => n.id);
@@ -53,22 +43,16 @@ export function NoteList({ timeBlockId, notes }: NoteListProps) {
   return (
     <div className="space-y-2">
       {notes.length > 0 && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
+        <SortableList
+          items={notes.map((n) => n.id)}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext
-            items={notes.map((n) => n.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="space-y-1">
-              {notes.map((note) => (
-                <NoteItem key={note.id} note={note} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+          <div className="space-y-1">
+            {notes.map((note) => (
+              <NoteItem key={note.id} note={note} />
+            ))}
+          </div>
+        </SortableList>
       )}
 
       <NoteForm timeBlockId={timeBlockId} />

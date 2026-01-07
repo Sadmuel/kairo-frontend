@@ -17,11 +17,16 @@ export function DayView() {
   const createDay = useCreateDay();
   const updateDay = useUpdateDay();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [createdDayId, setCreatedDayId] = useState<string | null>(null);
+
+  // Use the fetched day's id, or fall back to the newly created day's id
+  const dayId = day?.id ?? createdDayId;
 
   const handleAddTimeBlock = async () => {
-    // If no day exists, create it first
     if (!day) {
-      await createDay.mutateAsync({ date: dateString });
+      // Create the day and capture the returned id
+      const newDay = await createDay.mutateAsync({ date: dateString });
+      setCreatedDayId(newDay.id);
     }
     setIsModalOpen(true);
   };
@@ -81,11 +86,11 @@ export function DayView() {
         </div>
       )}
 
-      {day && (
+      {dayId && (
         <TimeBlockModal
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          dayId={day.id}
+          dayId={dayId}
         />
       )}
     </div>

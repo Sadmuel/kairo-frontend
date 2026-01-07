@@ -1,18 +1,11 @@
+'use client';
+
+import { useState } from 'react';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
+  SortableList,
   arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
+  type DragEndEvent,
+} from '@/components/ui/sortable-context';
 import { TimeBlockCard } from './time-block-card';
 import { useReorderTimeBlocks } from '@/hooks/use-time-blocks';
 import type { Day } from '@/types/calendar';
@@ -23,13 +16,7 @@ interface TimeBlockListProps {
 
 export function TimeBlockList({ day }: TimeBlockListProps) {
   const reorderTimeBlocks = useReorderTimeBlocks();
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const [reorderError, setReorderError] = useState<string | null>(null);
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -38,13 +25,23 @@ export function TimeBlockList({ day }: TimeBlockListProps) {
       const oldIndex = day.timeBlocks.findIndex((b) => b.id === active.id);
       const newIndex = day.timeBlocks.findIndex((b) => b.id === over.id);
 
+      if (oldIndex === -1 || newIndex === -1) {
+        console.warn('Drag reorder failed: time block not found in list');
+        return;
+      }
+
       const newOrder = arrayMove(day.timeBlocks, oldIndex, newIndex);
       const orderedIds = newOrder.map((b) => b.id);
 
-      await reorderTimeBlocks.mutateAsync({
-        dayId: day.id,
-        data: { orderedIds },
-      });
+      setReorderError(null);
+      try {
+        await reorderTimeBlocks.mutateAsync({
+          dayId: day.id,
+          data: { orderedIds },
+        });
+      } catch {
+        setReorderError('Failed to reorder. The list has been restored.');
+      }
     }
   };
 
@@ -59,14 +56,13 @@ export function TimeBlockList({ day }: TimeBlockListProps) {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext
+    <div className="space-y-3">
+      {reorderError && (
+        <p className="text-sm text-destructive">{reorderError}</p>
+      )}
+      <SortableList
         items={day.timeBlocks.map((b) => b.id)}
-        strategy={verticalListSortingStrategy}
+        onDragEnd={handleDragEnd}
       >
         <div className="space-y-3">
           {day.timeBlocks.map((timeBlock) => (
@@ -77,7 +73,7 @@ export function TimeBlockList({ day }: TimeBlockListProps) {
             />
           ))}
         </div>
-      </SortableContext>
-    </DndContext>
+      </SortableList>
+    </div>
   );
 }

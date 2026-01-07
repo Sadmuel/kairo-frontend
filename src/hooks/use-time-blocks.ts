@@ -78,5 +78,13 @@ export function useReorderTimeBlocks() {
       // Also invalidate days to update nested timeBlocks
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
     },
+    onError: (error, variables) => {
+      console.error('Failed to reorder time blocks:', error);
+      // Refetch to restore correct order from server
+      queryClient.invalidateQueries({
+        queryKey: timeBlocksKeys.byDay(variables.dayId),
+      });
+      queryClient.invalidateQueries({ queryKey: daysKeys.all });
+    },
   });
 }

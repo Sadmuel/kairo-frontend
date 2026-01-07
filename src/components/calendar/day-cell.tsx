@@ -15,9 +15,17 @@ export function DayCell({ date, currentMonth, day, onClick }: DayCellProps) {
   const hasTimeBlocks = day && day.timeBlocks.length > 0;
   const isCompleted = day?.isCompleted;
 
+  const formattedDate = date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
   return (
     <button
       onClick={() => onClick(date)}
+      aria-label={`Open events for ${formattedDate}`}
       className={cn(
         'relative flex h-16 flex-col items-start p-1 text-left transition-colors hover:bg-muted/50 sm:h-24 sm:p-2',
         'border-b border-r',
