@@ -47,6 +47,7 @@ export function CalendarHeader() {
             variant="outline"
             size="icon"
             onClick={goToPrevious}
+            aria-label="Previous"
             className="h-10 w-10 sm:h-9 sm:w-9"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -62,6 +63,7 @@ export function CalendarHeader() {
             variant="outline"
             size="icon"
             onClick={goToNext}
+            aria-label="Next"
             className="h-10 w-10 sm:h-9 sm:w-9"
           >
             <ChevronRight className="h-4 w-4" />

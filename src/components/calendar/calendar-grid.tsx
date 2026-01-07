@@ -13,5 +13,9 @@ export function CalendarGrid() {
       return <WeekView />;
     case 'day':
       return <DayView />;
+    default: {
+      const _exhaustiveCheck: never = currentView;
+      throw new Error(`Unhandled calendar view: ${_exhaustiveCheck}`);
+    }
   }
 }
