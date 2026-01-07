@@ -11,6 +11,7 @@ import { formatTime } from '@/lib/date-utils';
 import { useUpdateTimeBlock, useDeleteTimeBlock } from '@/hooks/use-time-blocks';
 import { TimeBlockModal } from './time-block-modal';
 import { NoteList } from '@/components/notes/note-list';
+import { TodoSection } from '@/components/todos/todo-section';
 import type { TimeBlock } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 
@@ -164,19 +165,30 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
               </div>
             </div>
 
-            {/* Notes section (expanded) */}
+            {/* Notes and Todos section (expanded) */}
             {isExpanded && (
-              <div className="mt-3 pt-3 border-t">
+              <div className="mt-3 pt-3 border-t space-y-4">
                 <NoteList timeBlockId={timeBlock.id} notes={timeBlock.notes} />
+                <TodoSection
+                  timeBlockId={timeBlock.id}
+                  todos={timeBlock.todos || []}
+                />
               </div>
             )}
 
-            {/* Notes preview (collapsed) */}
-            {!isExpanded && timeBlock.notes.length > 0 && (
-              <p className="mt-1 text-sm text-muted-foreground truncate">
-                {timeBlock.notes.length} note{timeBlock.notes.length > 1 ? 's' : ''}
-              </p>
-            )}
+            {/* Notes/Todos preview (collapsed) */}
+            {(() => {
+              const notesCount = timeBlock.notes.length;
+              const todosCount = timeBlock.todos?.length ?? 0;
+              if (isExpanded || (notesCount === 0 && todosCount === 0)) return null;
+              return (
+                <p className="mt-1 text-sm text-muted-foreground truncate">
+                  {notesCount > 0 && `${notesCount} note${notesCount > 1 ? 's' : ''}`}
+                  {notesCount > 0 && todosCount > 0 && ', '}
+                  {todosCount > 0 && `${todosCount} todo${todosCount > 1 ? 's' : ''}`}
+                </p>
+              );
+            })()}
           </div>
         </div>
       </Card>

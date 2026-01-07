@@ -9,6 +9,7 @@ import Login from '@/pages/login';
 import Register from '@/pages/register';
 import Dashboard from '@/pages/dashboard';
 import CalendarPage from '@/pages/calendar';
+import TodosPage from '@/pages/todos';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
                   </CalendarProvider>
                 }
               />
+              <Route path="/todos" element={<TodosPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
