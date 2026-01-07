@@ -60,11 +60,16 @@ export function TodoCard({ todo }: TodoCardProps) {
     await deleteTodo.mutateAsync(todo.id);
   };
 
-  const isOverdue =
-    todo.deadline && !todo.isCompleted && new Date(todo.deadline) < new Date();
+  const isOverdue = (() => {
+    if (!todo.deadline || todo.isCompleted) return false;
+    const [year, month, day] = todo.deadline.split('-').map(Number);
+    const deadlineEndOfDay = new Date(year, month - 1, day, 23, 59, 59, 999);
+    return deadlineEndOfDay < new Date();
+  })();
 
   const formatDeadline = (deadline: string) => {
-    const date = new Date(deadline);
+    const [year, month, day] = deadline.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString(undefined, {
       month: 'short',
       day: 'numeric',
@@ -82,11 +87,12 @@ export function TodoCard({ todo }: TodoCardProps) {
     >
       {/* Drag handle */}
       <button
+        aria-label="Drag to reorder todo"
         {...attributes}
         {...listeners}
         className="flex h-8 w-8 cursor-grab items-center justify-center touch-none text-muted-foreground opacity-100 sm:h-6 sm:w-6 sm:opacity-0 sm:group-hover:opacity-100"
       >
-        <GripVertical className="h-4 w-4" />
+        <GripVertical className="h-4 w-4" aria-hidden="true" />
       </button>
 
       {/* Checkbox */}
@@ -157,19 +163,21 @@ export function TodoCard({ todo }: TodoCardProps) {
             <Button
               size="icon"
               variant="ghost"
+              aria-label="Edit todo"
               className="h-8 w-8 sm:h-7 sm:w-7"
               onClick={() => setIsEditing(true)}
             >
-              <Pencil className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+              <Pencil className="h-3.5 w-3.5 sm:h-3 sm:w-3" aria-hidden="true" />
             </Button>
             <Button
               size="icon"
               variant="ghost"
+              aria-label="Delete todo"
               className="h-8 w-8 text-destructive hover:text-destructive sm:h-7 sm:w-7"
               onClick={handleDelete}
               disabled={deleteTodo.isPending}
             >
-              <Trash2 className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
+              <Trash2 className="h-3.5 w-3.5 sm:h-3 sm:w-3" aria-hidden="true" />
             </Button>
           </div>
         </>

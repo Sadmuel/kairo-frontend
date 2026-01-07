@@ -135,9 +135,31 @@ export function useReorderTodos() {
           queryKey: todosKeys.byDay(variables.context.dayId),
         });
       } else if (variables.context.inbox) {
-        queryClient.invalidateQueries({ queryKey: todosKeys.inbox() });
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            query.queryKey[0] === 'todos' && query.queryKey[1] === 'inbox',
+        });
       }
       // Also invalidate days to update nested todos
+      queryClient.invalidateQueries({ queryKey: daysKeys.all });
+    },
+    onError: (error, variables) => {
+      console.error('Failed to reorder todos:', error);
+      // Refetch to restore correct order from server
+      if (variables.context.timeBlockId) {
+        queryClient.invalidateQueries({
+          queryKey: todosKeys.byTimeBlock(variables.context.timeBlockId),
+        });
+      } else if (variables.context.dayId) {
+        queryClient.invalidateQueries({
+          queryKey: todosKeys.byDay(variables.context.dayId),
+        });
+      } else if (variables.context.inbox) {
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            query.queryKey[0] === 'todos' && query.queryKey[1] === 'inbox',
+        });
+      }
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
     },
   });

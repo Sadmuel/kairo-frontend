@@ -12,6 +12,7 @@ interface DayTodoSectionProps {
 export function DayTodoSection({ dayId }: DayTodoSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const { data: todos = [], isLoading } = useTodosByDay(dayId);
+  const contentId = `day-todos-${dayId}`;
 
   const completedCount = todos.filter((t) => t.isCompleted).length;
   const totalCount = todos.length;
@@ -21,6 +22,8 @@ export function DayTodoSection({ dayId }: DayTodoSectionProps) {
       <button
         className="flex w-full items-center justify-between text-sm font-medium hover:text-foreground"
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
       >
         <span className="flex items-center gap-2">
           <ListTodo className="h-4 w-4" />
@@ -39,7 +42,7 @@ export function DayTodoSection({ dayId }: DayTodoSectionProps) {
       </button>
 
       {isExpanded && (
-        <div className="mt-3 pt-3 border-t">
+        <div id={contentId} className="mt-3 pt-3 border-t">
           {isLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-8 w-full" />

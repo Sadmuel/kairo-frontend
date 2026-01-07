@@ -10,6 +10,7 @@ interface TodoSectionProps {
 
 export function TodoSection({ timeBlockId, todos }: TodoSectionProps) {
   const [isExpanded, setIsExpanded] = useState(todos.length > 0);
+  const contentId = `todos-${timeBlockId}`;
 
   const completedCount = todos.filter((t) => t.isCompleted).length;
   const totalCount = todos.length;
@@ -19,6 +20,8 @@ export function TodoSection({ timeBlockId, todos }: TodoSectionProps) {
       <button
         className="flex w-full items-center justify-between text-sm text-muted-foreground hover:text-foreground"
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
       >
         <span className="flex items-center gap-1.5">
           <CheckSquare className="h-4 w-4" />
@@ -36,7 +39,11 @@ export function TodoSection({ timeBlockId, todos }: TodoSectionProps) {
         )}
       </button>
 
-      {isExpanded && <TodoList todos={todos} timeBlockId={timeBlockId} />}
+      {isExpanded && (
+        <div id={contentId}>
+          <TodoList todos={todos} timeBlockId={timeBlockId} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TodoList } from '@/components/todos/todo-list';
-import { TodoForm } from '@/components/todos/todo-form';
 import { useInboxTodos } from '@/hooks/use-todos';
 
 type FilterType = 'active' | 'completed' | 'all';
@@ -17,7 +16,7 @@ export default function TodosPage() {
   const filterQuery =
     filter === 'all' ? undefined : { isCompleted: filter === 'completed' };
 
-  const { data: todos = [], isLoading } = useInboxTodos(filterQuery);
+  const { data: todos = [], isLoading, error, refetch } = useInboxTodos(filterQuery);
 
   const handleFilterChange = (value: string) => {
     if (value) {
@@ -77,19 +76,29 @@ export default function TodosPage() {
                   <Skeleton className="h-10 w-full" />
                   <Skeleton className="h-10 w-3/4" />
                 </div>
+              ) : error ? (
+                <div className="flex flex-col items-center gap-3 py-6 text-center">
+                  <AlertCircle className="h-8 w-8 text-destructive" />
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Failed to load todos</p>
+                    <p className="text-xs text-muted-foreground">
+                      Something went wrong. Please try again.
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => refetch()}>
+                    Retry
+                  </Button>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {todos.length === 0 ? (
+                  {todos.length === 0 && (
                     <p className="text-center text-sm text-muted-foreground py-4">
                       {filter === 'active' && 'No active todos.'}
                       {filter === 'completed' && 'No completed todos yet.'}
                       {filter === 'all' && 'No todos yet.'}
                     </p>
-                  ) : (
-                    <TodoList todos={todos} inbox showForm={false} />
                   )}
-                  {/* Always show the add form for inbox */}
-                  <TodoForm />
+                  <TodoList todos={todos} inbox />
                 </div>
               )}
             </CardContent>

@@ -16,23 +16,30 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
   const [deadline, setDeadline] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeadline, setShowDeadline] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const createTodo = useCreateTodo();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    await createTodo.mutateAsync({
-      title: title.trim(),
-      deadline: deadline || undefined,
-      dayId,
-      timeBlockId,
-    });
+    setError(null);
+    try {
+      await createTodo.mutateAsync({
+        title: title.trim(),
+        deadline: deadline || undefined,
+        dayId,
+        timeBlockId,
+      });
 
-    setTitle('');
-    setDeadline('');
-    setShowDeadline(false);
-    setIsExpanded(false);
+      setTitle('');
+      setDeadline('');
+      setShowDeadline(false);
+      setIsExpanded(false);
+    } catch (err) {
+      console.error('Failed to create todo:', err);
+      setError('Failed to create todo. Please try again.');
+    }
   };
 
   const handleReset = () => {
@@ -40,6 +47,7 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
     setDeadline('');
     setShowDeadline(false);
     setIsExpanded(false);
+    setError(null);
   };
 
   if (!isExpanded) {
@@ -85,8 +93,9 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
           </PopoverTrigger>
           <PopoverContent className="w-auto p-3" align="end">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Deadline</label>
+              <label htmlFor="todo-deadline" className="text-sm font-medium">Deadline</label>
               <Input
+                id="todo-deadline"
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
@@ -120,8 +129,14 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
       {deadline && (
         <div className="flex items-center gap-1 text-xs text-muted-foreground pl-1">
           <Calendar className="h-3 w-3" />
-          Due: {new Date(deadline).toLocaleDateString()}
+          Due: {(() => {
+            const [year, month, day] = deadline.split('-').map(Number);
+            return new Date(year, month - 1, day).toLocaleDateString();
+          })()}
         </div>
+      )}
+      {error && (
+        <p className="text-xs text-destructive pl-1">{error}</p>
       )}
     </form>
   );

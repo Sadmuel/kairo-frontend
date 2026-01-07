@@ -177,16 +177,18 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
             )}
 
             {/* Notes/Todos preview (collapsed) */}
-            {!isExpanded &&
-              (timeBlock.notes.length > 0 || (timeBlock.todos?.length ?? 0) > 0) && (
+            {(() => {
+              const notesCount = timeBlock.notes.length;
+              const todosCount = timeBlock.todos?.length ?? 0;
+              if (isExpanded || (notesCount === 0 && todosCount === 0)) return null;
+              return (
                 <p className="mt-1 text-sm text-muted-foreground truncate">
-                  {timeBlock.notes.length > 0 &&
-                    `${timeBlock.notes.length} note${timeBlock.notes.length > 1 ? 's' : ''}`}
-                  {timeBlock.notes.length > 0 && (timeBlock.todos?.length ?? 0) > 0 && ', '}
-                  {(timeBlock.todos?.length ?? 0) > 0 &&
-                    `${timeBlock.todos!.length} todo${timeBlock.todos!.length > 1 ? 's' : ''}`}
+                  {notesCount > 0 && `${notesCount} note${notesCount > 1 ? 's' : ''}`}
+                  {notesCount > 0 && todosCount > 0 && ', '}
+                  {todosCount > 0 && `${todosCount} todo${todosCount > 1 ? 's' : ''}`}
                 </p>
-              )}
+              );
+            })()}
           </div>
         </div>
       </Card>
