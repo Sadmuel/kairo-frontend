@@ -29,6 +29,9 @@ vite.config.d.ts
 
 # Claude Code
 .claude/
+
+# SAFM (Planning documents)
+SAFM/
 .DS_Store
 *.suo
 *.ntvs*
