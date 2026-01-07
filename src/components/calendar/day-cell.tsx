@@ -13,7 +13,7 @@ interface DayCellProps {
 export function DayCell({ date, currentMonth, day, onClick }: DayCellProps) {
   const isCurrentMonth = isSameMonth(date, currentMonth);
   const isTodayDate = isToday(date);
-  const hasTimeBlocks = day && day.timeBlocks.length > 0;
+  const hasTimeBlocks = (day?.timeBlocks?.length ?? 0) > 0;
   const isCompleted = day?.isCompleted;
 
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -43,7 +43,7 @@ export function DayCell({ date, currentMonth, day, onClick }: DayCellProps) {
         {date.getDate()}
       </span>
 
-      {hasTimeBlocks && (
+      {hasTimeBlocks && day && (
         <div className="mt-0.5 flex flex-wrap gap-0.5 sm:mt-1 sm:gap-1">
           {day.timeBlocks.slice(0, 3).map((block) => (
             <Dot key={block.id} color={block.color} />

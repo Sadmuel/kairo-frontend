@@ -85,8 +85,8 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
         )}
       >
         <div
-          className="flex items-start gap-2 p-3 sm:gap-3 sm:p-4"
-          style={{ borderLeftWidth: 4, borderLeftColor: timeBlock.color || '#A5D8FF' }}
+          className="flex items-start gap-2 border-l-4 border-l-[--border-color] p-3 sm:gap-3 sm:p-4"
+          style={{ '--border-color': timeBlock.color || '#A5D8FF' } as React.CSSProperties}
         >
           {/* Drag handle - larger touch target on mobile */}
           <button

@@ -51,6 +51,9 @@ export function useUpdateTimeBlock() {
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
     },
+    onError: (error, variables) => {
+      console.error('Failed to update time block:', error, { id: variables.id });
+    },
   });
 }
 

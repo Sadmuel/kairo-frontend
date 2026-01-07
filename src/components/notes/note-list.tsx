@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { SortableList } from '@/components/ui/sortable-context';
 import { arrayMove, type DragEndEvent } from '@/lib/dnd-kit';
 import { NoteItem } from './note-item';
@@ -14,6 +15,7 @@ interface NoteListProps {
 
 export function NoteList({ timeBlockId, notes }: NoteListProps) {
   const reorderNotes = useReorderNotes();
+  const [reorderError, setReorderError] = useState<string | null>(null);
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -30,15 +32,24 @@ export function NoteList({ timeBlockId, notes }: NoteListProps) {
       const newOrder = arrayMove(notes, oldIndex, newIndex);
       const orderedIds = newOrder.map((n) => n.id);
 
-      await reorderNotes.mutateAsync({
-        timeBlockId,
-        data: { orderedIds },
-      });
+      setReorderError(null);
+      try {
+        await reorderNotes.mutateAsync({
+          timeBlockId,
+          data: { orderedIds },
+        });
+      } catch (error) {
+        console.error('Failed to reorder notes:', error);
+        setReorderError('Failed to reorder. Please try again.');
+      }
     }
   };
 
   return (
     <div className="space-y-2">
+      {reorderError && (
+        <p className="text-xs text-destructive">{reorderError}</p>
+      )}
       {notes.length > 0 && (
         <SortableList
           items={notes.map((n) => n.id)}

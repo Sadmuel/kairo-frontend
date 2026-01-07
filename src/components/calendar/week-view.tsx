@@ -109,14 +109,14 @@ export function WeekView() {
                         <div
                           key={block.id}
                           className={cn(
-                            'absolute inset-x-0.5 overflow-hidden rounded px-1 py-0.5 text-[10px] sm:inset-x-1 sm:rounded-md sm:px-2 sm:py-1 sm:text-xs',
+                            'absolute inset-x-0.5 overflow-hidden rounded px-1 py-0.5 text-[10px] bg-[--block-bg] sm:inset-x-1 sm:rounded-md sm:px-2 sm:py-1 sm:text-xs',
                             block.isCompleted && 'opacity-60'
                           )}
                           style={{
+                            '--block-bg': block.color || '#A5D8FF',
                             top: `${top}%`,
                             height: `${Math.max(height, 4)}%`,
-                            backgroundColor: block.color || '#A5D8FF',
-                          }}
+                          } as React.CSSProperties}
                         >
                           <div className="truncate font-medium">{block.name}</div>
                           {height > 10 && (
