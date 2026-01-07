@@ -1,13 +1,14 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/context/auth-context';
+import { CalendarProvider } from '@/context/calendar-context';
 import { ProtectedRoute } from '@/components/protected-route';
 import { GuestRoute } from '@/components/guest-route';
-import Home from '@/pages/home';
 import Login from '@/pages/login';
 import Register from '@/pages/register';
 import Dashboard from '@/pages/dashboard';
+import CalendarPage from '@/pages/calendar';
 
 function App() {
   return (
@@ -15,8 +16,8 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Home />} />
+            {/* Root redirects to dashboard (will redirect to login if not authenticated) */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
             {/* Guest-only routes (redirect to dashboard if authenticated) */}
             <Route element={<GuestRoute />}>
@@ -27,6 +28,14 @@ function App() {
             {/* Protected routes (require authentication) */}
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/calendar"
+                element={
+                  <CalendarProvider>
+                    <CalendarPage />
+                  </CalendarProvider>
+                }
+              />
             </Route>
           </Routes>
         </BrowserRouter>
