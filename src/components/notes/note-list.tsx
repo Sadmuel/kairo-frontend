@@ -1,10 +1,7 @@
 'use client';
 
-import {
-  SortableList,
-  arrayMove,
-  type DragEndEvent,
-} from '@/components/ui/sortable-context';
+import { SortableList } from '@/components/ui/sortable-context';
+import { arrayMove, type DragEndEvent } from '@/lib/dnd-kit';
 import { NoteItem } from './note-item';
 import { NoteForm } from './note-form';
 import { useReorderNotes } from '@/hooks/use-notes';

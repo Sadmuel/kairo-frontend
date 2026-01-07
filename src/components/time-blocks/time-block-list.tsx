@@ -1,11 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  SortableList,
-  arrayMove,
-  type DragEndEvent,
-} from '@/components/ui/sortable-context';
+import { SortableList } from '@/components/ui/sortable-context';
+import { arrayMove, type DragEndEvent } from '@/lib/dnd-kit';
 import { TimeBlockCard } from './time-block-card';
 import { useReorderTimeBlocks } from '@/hooks/use-time-blocks';
 import type { Day } from '@/types/calendar';

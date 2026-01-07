@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react';
-import { useSortable, CSS } from '@/components/ui/sortable-context';
+import { useSortable, CSS } from '@/lib/dnd-kit';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';

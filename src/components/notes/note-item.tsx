@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { GripVertical, Pencil, Trash2, Check, X } from 'lucide-react';
-import { useSortable, CSS } from '@/components/ui/sortable-context';
+import { useSortable, CSS } from '@/lib/dnd-kit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUpdateNote, useDeleteNote } from '@/hooks/use-notes';

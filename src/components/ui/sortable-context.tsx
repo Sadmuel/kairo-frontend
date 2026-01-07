@@ -42,9 +42,3 @@ export function SortableList({ items, onDragEnd, children }: SortableListProps) 
     </DndContext>
   );
 }
-
-// Re-export hooks and utilities for convenience
-export { useSortable } from '@dnd-kit/sortable';
-export { CSS } from '@dnd-kit/utilities';
-export { arrayMove } from '@dnd-kit/sortable';
-export type { DragEndEvent };
