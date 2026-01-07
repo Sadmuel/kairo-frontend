@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TimeBlockList } from '@/components/time-blocks/time-block-list';
 import { TimeBlockModal } from '@/components/time-blocks/time-block-modal';
+import { DayTodoSection } from '@/components/todos/day-todo-section';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -75,6 +76,8 @@ export function DayView() {
           </Button>
         </div>
       </div>
+
+      {day && <DayTodoSection dayId={day.id} />}
 
       {day ? (
         <TimeBlockList day={day} />

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from 'lucide-react';
+import { Calendar, Inbox } from 'lucide-react';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -29,6 +29,12 @@ export default function Dashboard() {
               <Link to="/calendar">
                 <Calendar className="mr-2 h-4 w-4" />
                 Calendar
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="h-10 flex-1 sm:h-9 sm:flex-none">
+              <Link to="/todos">
+                <Inbox className="mr-2 h-4 w-4" />
+                Inbox
               </Link>
             </Button>
             <Button

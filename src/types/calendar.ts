@@ -6,6 +6,7 @@ export interface Day {
   createdAt: string;
   updatedAt: string;
   timeBlocks: TimeBlock[];
+  todos?: Todo[];
 }
 
 export interface TimeBlock {
@@ -20,6 +21,7 @@ export interface TimeBlock {
   createdAt: string;
   updatedAt: string;
   notes: Note[];
+  todos?: Todo[];
 }
 
 export interface Note {
@@ -29,6 +31,21 @@ export interface Note {
   timeBlockId: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Todo {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+  deadline: string | null;
+  order: number;
+  userId: string;
+  dayId: string | null;
+  timeBlockId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  day?: Day | null;
+  timeBlock?: TimeBlock | null;
 }
 
 // DTOs
@@ -73,6 +90,36 @@ export interface UpdateNoteDto {
 
 export interface ReorderNotesDto {
   orderedIds: string[];
+}
+
+export interface CreateTodoDto {
+  title: string;
+  deadline?: string;
+  dayId?: string;
+  timeBlockId?: string;
+  order?: number;
+}
+
+export interface UpdateTodoDto {
+  title?: string;
+  isCompleted?: boolean;
+  deadline?: string | null;
+}
+
+export interface MoveTodoDto {
+  targetDayId?: string;
+  targetTimeBlockId?: string;
+}
+
+export interface ReorderTodosDto {
+  orderedIds: string[];
+}
+
+export interface TodoFilterQuery {
+  dayId?: string;
+  timeBlockId?: string;
+  isCompleted?: boolean;
+  inbox?: boolean;
 }
 
 // Calendar state
