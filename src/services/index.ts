@@ -4,3 +4,4 @@ export { daysService } from './days';
 export { timeBlocksService } from './time-blocks';
 export { notesService } from './notes';
 export { todosService } from './todos';
+export { eventsService } from './events';

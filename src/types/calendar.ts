@@ -122,6 +122,47 @@ export interface TodoFilterQuery {
   inbox?: boolean;
 }
 
+// Event types
+export type RecurrenceType = 'NONE' | 'DAILY' | 'WEEKDAYS' | 'WEEKENDS' | 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
+export interface Event {
+  id: string;
+  title: string;
+  date: string; // YYYY-MM-DD
+  color: string | null;
+  isRecurring: boolean;
+  recurrenceType: RecurrenceType;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EventOccurrence extends Event {
+  isOccurrence: boolean; // true if generated, false if original
+  occurrenceDate: string; // Actual date of this occurrence
+}
+
+export interface CreateEventDto {
+  title: string;
+  date: string;
+  color?: string;
+  isRecurring?: boolean;
+  recurrenceType?: RecurrenceType;
+}
+
+export interface UpdateEventDto {
+  title?: string;
+  date?: string;
+  color?: string | null;
+  isRecurring?: boolean;
+  recurrenceType?: RecurrenceType;
+}
+
+export interface EventCalendarQuery {
+  startDate: string;
+  endDate: string;
+}
+
 // Calendar state
 export type CalendarView = 'month' | 'week' | 'day';
 
