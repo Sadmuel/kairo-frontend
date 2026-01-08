@@ -41,9 +41,9 @@ export function DayCell({
     setSelectedEvent(event);
   };
 
-  // Show max 2 events on mobile, 3 on desktop
+  // Show max 2 events to keep the cell compact
   const visibleEvents = events.slice(0, 2);
-  const hiddenEventsCount = events.length - 2;
+  const hiddenEventsCount = Math.max(0, events.length - 2);
 
   return (
     <>

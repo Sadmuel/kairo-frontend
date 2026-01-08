@@ -95,22 +95,26 @@ export function EventForm(props: EventFormProps) {
 
     const finalRecurrenceType = isRecurring ? recurrenceType : 'NONE';
 
-    if (isEdit) {
-      await (onSubmit as (data: UpdateEventDto) => Promise<void>)({
-        title,
-        date,
-        color,
-        isRecurring,
-        recurrenceType: finalRecurrenceType,
-      });
-    } else {
-      await (onSubmit as (data: CreateEventDto) => Promise<void>)({
-        title,
-        date,
-        color,
-        isRecurring,
-        recurrenceType: finalRecurrenceType,
-      });
+    try {
+      if (isEdit) {
+        await (onSubmit as (data: UpdateEventDto) => Promise<void>)({
+          title,
+          date,
+          color,
+          isRecurring,
+          recurrenceType: finalRecurrenceType,
+        });
+      } else {
+        await (onSubmit as (data: CreateEventDto) => Promise<void>)({
+          title,
+          date,
+          color,
+          isRecurring,
+          recurrenceType: finalRecurrenceType,
+        });
+      }
+    } catch {
+      setError('Failed to save event. Please try again.');
     }
   };
 
