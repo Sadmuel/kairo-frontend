@@ -8,6 +8,7 @@ import {
   ReactNode,
 } from 'react';
 import { authService, tokenStore } from '@/services';
+import { queryClient } from '@/lib/query-client';
 import type { User, LoginDto, RegisterDto } from '@/types';
 
 interface AuthContextType {
@@ -92,6 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     }
+
+    // Clear all cached data to prevent data leakage between users
+    queryClient.clear();
 
     tokenStore.clearTokens();
     setUser(null);

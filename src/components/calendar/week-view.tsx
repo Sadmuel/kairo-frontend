@@ -1,17 +1,24 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { useCalendar } from '@/hooks/use-calendar';
 import { useDaysForWeek } from '@/hooks/use-days';
+import { useEventsForWeek } from '@/hooks/use-events';
 import { getWeekDays, formatDateForApi, isToday, getTimeBlockPosition } from '@/lib/date-utils';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Day } from '@/types/calendar';
+import { EventBadge } from '@/components/events';
+import { EventModal } from '@/components/events';
+import type { Day, EventOccurrence } from '@/types/calendar';
 
 const HOURS = Array.from({ length: 19 }, (_, i) => i + 6); // 6 AM to 12 AM
 
 export function WeekView() {
   const { selectedDate, setSelectedDate, setCurrentView } = useCalendar();
-  const { data: days, isLoading } = useDaysForWeek(selectedDate);
+  const { data: days, isLoading: isDaysLoading } = useDaysForWeek(selectedDate);
+  const { data: events, isLoading: isEventsLoading } = useEventsForWeek(selectedDate);
+  const [selectedEvent, setSelectedEvent] = useState<EventOccurrence | null>(null);
+
+  const isLoading = isDaysLoading || isEventsLoading;
 
   const weekDays = useMemo(() => getWeekDays(selectedDate), [selectedDate]);
 
@@ -19,6 +26,19 @@ export function WeekView() {
     if (!days) return new Map<string, Day>();
     return new Map(days.map((day) => [formatDateForApi(new Date(day.date)), day]));
   }, [days]);
+
+  const eventsMap = useMemo(() => {
+    if (!events) return new Map<string, EventOccurrence[]>();
+    const map = new Map<string, EventOccurrence[]>();
+    for (const event of events) {
+      // Normalize occurrenceDate to YYYY-MM-DD format for consistent lookup
+      const dateKey = event.occurrenceDate.split('T')[0];
+      const existing = map.get(dateKey) || [];
+      existing.push(event);
+      map.set(dateKey, existing);
+    }
+    return map;
+  }, [events]);
 
   const formattedHours = useMemo(
     () => HOURS.map((h) => format(new Date().setHours(h, 0), 'h a')),
@@ -65,6 +85,41 @@ export function WeekView() {
                 </div>
               </button>
             ))}
+          </div>
+
+          {/* Events row */}
+          <div className="grid grid-cols-8 border-b">
+            <div className="flex items-center justify-end border-r px-1 py-1 sm:px-2 sm:py-2">
+              <span className="text-[10px] text-muted-foreground sm:text-xs">
+                Events
+              </span>
+            </div>
+            {weekDays.map((date) => {
+              const dateKey = formatDateForApi(date);
+              const dayEvents = eventsMap.get(dateKey) || [];
+              return (
+                <div
+                  key={`events-${date.toISOString()}`}
+                  className={cn(
+                    'flex min-h-[32px] flex-col gap-0.5 border-r p-0.5 sm:min-h-[40px] sm:gap-1 sm:p-1',
+                    isToday(date) && 'bg-primary/5'
+                  )}
+                >
+                  {dayEvents.slice(0, 2).map((event) => (
+                    <EventBadge
+                      key={`${event.id}-${event.occurrenceDate}`}
+                      event={event}
+                      onClick={() => setSelectedEvent(event)}
+                    />
+                  ))}
+                  {dayEvents.length > 2 && (
+                    <span className="text-[10px] text-muted-foreground">
+                      +{dayEvents.length - 2} more
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* Time grid */}
@@ -139,6 +194,25 @@ export function WeekView() {
       <div className="border-t bg-muted/30 px-3 py-2 text-center text-xs text-muted-foreground sm:hidden">
         Swipe left/right to see all days
       </div>
+
+      {/* Event edit modal */}
+      {selectedEvent && (
+        <EventModal
+          open={!!selectedEvent}
+          onOpenChange={(open) => !open && setSelectedEvent(null)}
+          event={{
+            id: selectedEvent.id,
+            title: selectedEvent.title,
+            date: selectedEvent.occurrenceDate.split('T')[0],
+            color: selectedEvent.color,
+            isRecurring: selectedEvent.isRecurring,
+            recurrenceType: selectedEvent.recurrenceType,
+            userId: selectedEvent.userId,
+            createdAt: selectedEvent.createdAt,
+            updatedAt: selectedEvent.updatedAt,
+          }}
+        />
+      )}
     </div>
   );
 }

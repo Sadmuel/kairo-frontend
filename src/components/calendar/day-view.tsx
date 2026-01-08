@@ -8,6 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { TimeBlockList } from '@/components/time-blocks/time-block-list';
 import { TimeBlockModal } from '@/components/time-blocks/time-block-modal';
 import { DayTodoSection } from '@/components/todos/day-todo-section';
+import { EventsSection } from '@/components/events';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -76,6 +77,8 @@ export function DayView() {
           </Button>
         </div>
       </div>
+
+      <EventsSection date={selectedDate} />
 
       {day && <DayTodoSection dayId={day.id} />}
 
