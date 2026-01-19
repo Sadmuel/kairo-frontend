@@ -10,6 +10,7 @@ import Register from '@/pages/register';
 import Dashboard from '@/pages/dashboard';
 import CalendarPage from '@/pages/calendar';
 import TodosPage from '@/pages/todos';
+import StatsPage from '@/pages/stats';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                 }
               />
               <Route path="/todos" element={<TodosPage />} />
+              <Route path="/stats" element={<StatsPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

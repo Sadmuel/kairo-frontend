@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { daysService } from '@/services/days';
 import type { CreateDayDto, UpdateDayDto } from '@/types/calendar';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { statsKeys } from './use-stats';
 
 // Query keys
 export const daysKeys = {
@@ -58,6 +59,7 @@ export function useCreateDay() {
     mutationFn: (data: CreateDayDto) => daysService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
     },
   });
 }
@@ -71,6 +73,7 @@ export function useUpdateDay() {
       daysService.update(id, data),
     onSuccess: (updatedDay) => {
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
       queryClient.setQueryData(daysKeys.detail(updatedDay.id), updatedDay);
     },
   });
@@ -84,6 +87,7 @@ export function useDeleteDay() {
     mutationFn: (id: string) => daysService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
     },
   });
 }

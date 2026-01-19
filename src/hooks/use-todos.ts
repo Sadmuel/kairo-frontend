@@ -9,6 +9,7 @@ import type {
 } from '@/types/calendar';
 import { daysKeys } from './use-days';
 import { timeBlocksKeys } from './use-time-blocks';
+import { statsKeys } from './use-stats';
 
 export const todosKeys = {
   all: ['todos'] as const,
@@ -72,6 +73,7 @@ export function useCreateTodo() {
     mutationFn: (data: CreateTodoDto) => todosService.create(data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
       // Invalidate days query to update nested todos in day/timeblock views
       if (variables.timeBlockId || variables.dayId) {
         queryClient.invalidateQueries({ queryKey: daysKeys.all });
@@ -90,6 +92,7 @@ export function useUpdateTodo() {
       todosService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
       // Also invalidate days and time blocks to update nested todos
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
@@ -106,6 +109,7 @@ export function useMoveTodo() {
       todosService.move(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
     },
@@ -173,6 +177,7 @@ export function useDeleteTodo() {
     mutationFn: (id: string) => todosService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
     },
