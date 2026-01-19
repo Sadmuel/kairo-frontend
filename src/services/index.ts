@@ -6,3 +6,4 @@ export { notesService } from './notes';
 export { todosService } from './todos';
 export { eventsService } from './events';
 export { statsService } from './stats';
+export { dashboardService } from './dashboard';

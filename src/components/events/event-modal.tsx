@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -26,17 +27,27 @@ export function EventModal({
   const isEdit = !!event;
 
   const handleCreate = async (data: CreateEventDto) => {
-    await createEvent.mutateAsync(data);
-    onOpenChange(false);
+    try {
+      await createEvent.mutateAsync(data);
+      onOpenChange(false);
+      toast.success('Event created');
+    } catch {
+      toast.error('Failed to create event');
+    }
   };
 
   const handleUpdate = async (data: UpdateEventDto) => {
     if (!event) return;
-    await updateEvent.mutateAsync({
-      id: event.id,
-      data,
-    });
-    onOpenChange(false);
+    try {
+      await updateEvent.mutateAsync({
+        id: event.id,
+        data,
+      });
+      onOpenChange(false);
+      toast.success('Event updated');
+    } catch {
+      toast.error('Failed to update event');
+    }
   };
 
   return (

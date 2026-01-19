@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { GripVertical, Pencil, Trash2, Check, X, Calendar } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -34,21 +35,30 @@ export function TodoCard({ todo }: TodoCardProps) {
   };
 
   const handleToggleComplete = async () => {
-    await updateTodo.mutateAsync({
-      id: todo.id,
-      data: { isCompleted: !todo.isCompleted },
-    });
+    try {
+      await updateTodo.mutateAsync({
+        id: todo.id,
+        data: { isCompleted: !todo.isCompleted },
+      });
+    } catch {
+      toast.error('Failed to update todo');
+    }
   };
 
   const handleSave = async () => {
     if (!editTitle.trim()) {
       return;
     }
-    await updateTodo.mutateAsync({
-      id: todo.id,
-      data: { title: editTitle },
-    });
-    setIsEditing(false);
+    try {
+      await updateTodo.mutateAsync({
+        id: todo.id,
+        data: { title: editTitle },
+      });
+      setIsEditing(false);
+      toast.success('Todo updated');
+    } catch {
+      toast.error('Failed to update todo');
+    }
   };
 
   const handleCancel = () => {
@@ -57,7 +67,12 @@ export function TodoCard({ todo }: TodoCardProps) {
   };
 
   const handleDelete = async () => {
-    await deleteTodo.mutateAsync(todo.id);
+    try {
+      await deleteTodo.mutateAsync(todo.id);
+      toast.success('Todo deleted');
+    } catch {
+      toast.error('Failed to delete todo');
+    }
   };
 
   const isOverdue = (() => {

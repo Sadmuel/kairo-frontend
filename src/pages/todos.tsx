@@ -3,7 +3,7 @@ import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TodoListSkeleton } from '@/components/ui/skeletons';
 import { TodoList } from '@/components/todos/todo-list';
 import { useInboxTodos } from '@/hooks/use-todos';
 
@@ -55,11 +55,7 @@ export default function TodosPage() {
           </CardHeader>
           <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
             {isLoading ? (
-              <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-3/4" />
-              </div>
+              <TodoListSkeleton count={5} />
             ) : error ? (
               <div className="flex flex-col items-center gap-3 py-6 text-center">
                 <AlertCircle className="h-8 w-8 text-destructive" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react';
 import { useSortable, CSS } from '@/lib/dnd-kit';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
     } catch (error) {
       console.error('Failed to toggle time block completion:', error);
       setToggleError('Failed to update. Please try again.');
+      // Using inline error only - user is looking at this component
     }
   };
 
@@ -61,9 +63,11 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
     try {
       await deleteTimeBlock.mutateAsync({ id: timeBlock.id, dayId });
       setIsDeleteDialogOpen(false);
+      toast.success('Time block deleted');
     } catch (error) {
       console.error('Failed to delete time block:', error);
       setDeleteError('Failed to delete. Please try again.');
+      // Using inline error only - ConfirmDialog displays the error
     }
   };
 

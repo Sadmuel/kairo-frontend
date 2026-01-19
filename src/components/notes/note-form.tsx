@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,13 +18,18 @@ export function NoteForm({ timeBlockId }: NoteFormProps) {
     e.preventDefault();
     if (!content.trim()) return;
 
-    await createNote.mutateAsync({
-      content: content.trim(),
-      timeBlockId,
-    });
+    try {
+      await createNote.mutateAsync({
+        content: content.trim(),
+        timeBlockId,
+      });
 
-    setContent('');
-    setIsExpanded(false);
+      setContent('');
+      setIsExpanded(false);
+      toast.success('Note created');
+    } catch {
+      toast.error('Failed to create note');
+    }
   };
 
   if (!isExpanded) {

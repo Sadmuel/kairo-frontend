@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { getErrorMessage } from '@/lib/error';
@@ -35,12 +36,14 @@ export default function Login() {
 
     try {
       await login({ email: email.trim(), password });
+      toast.success('Welcome back!');
       // Navigate to the original destination or default to dashboard
       const state = location.state as LocationState | null;
       const destination = state?.from?.pathname ?? '/dashboard';
       navigate(destination, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, 'Invalid credentials'));
+      // Using inline error only - user is looking at the form
     } finally {
       setIsSubmitting(false);
     }

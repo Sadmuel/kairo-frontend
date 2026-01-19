@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -26,17 +27,27 @@ export function TimeBlockModal({
   const isEdit = !!timeBlock;
 
   const handleCreate = async (data: CreateTimeBlockDto) => {
-    await createTimeBlock.mutateAsync(data);
-    onOpenChange(false);
+    try {
+      await createTimeBlock.mutateAsync(data);
+      onOpenChange(false);
+      toast.success('Time block created');
+    } catch {
+      toast.error('Failed to create time block');
+    }
   };
 
   const handleUpdate = async (data: UpdateTimeBlockDto) => {
     if (!timeBlock) return;
-    await updateTimeBlock.mutateAsync({
-      id: timeBlock.id,
-      data,
-    });
-    onOpenChange(false);
+    try {
+      await updateTimeBlock.mutateAsync({
+        id: timeBlock.id,
+        data,
+      });
+      onOpenChange(false);
+      toast.success('Time block updated');
+    } catch {
+      toast.error('Failed to update time block');
+    }
   };
 
   return (

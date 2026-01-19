@@ -8,18 +8,25 @@ interface EventBadgeProps {
 }
 
 export function EventBadge({ event, onClick }: EventBadgeProps) {
-  const handleClick = (e: React.MouseEvent) => {
+  const handleInteraction = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
     onClick?.();
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={handleInteraction}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleInteraction(e);
+        }
+      }}
       className={cn(
         'flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium truncate max-w-full',
-        'hover:opacity-80 transition-opacity',
+        'hover:opacity-80 transition-opacity cursor-pointer',
         'text-left'
       )}
       style={{
@@ -30,7 +37,7 @@ export function EventBadge({ event, onClick }: EventBadgeProps) {
     >
       {event.isRecurring && <Repeat className="h-3 w-3 shrink-0" />}
       <span className="truncate">{event.title}</span>
-    </button>
+    </div>
   );
 }
 

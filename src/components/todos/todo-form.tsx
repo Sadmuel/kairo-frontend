@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Plus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,9 +37,11 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
       setDeadline('');
       setShowDeadline(false);
       setIsExpanded(false);
+      toast.success('Todo created');
     } catch (err) {
       console.error('Failed to create todo:', err);
       setError('Failed to create todo. Please try again.');
+      // Using inline error only - user is looking at the form
     }
   };
 
