@@ -10,6 +10,7 @@ import type {
 import { daysKeys } from './use-days';
 import { timeBlocksKeys } from './use-time-blocks';
 import { statsKeys } from './use-stats';
+import { dashboardKeys } from './use-dashboard';
 
 export const todosKeys = {
   all: ['todos'] as const,
@@ -74,6 +75,7 @@ export function useCreateTodo() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       // Invalidate days query to update nested todos in day/timeblock views
       if (variables.timeBlockId || variables.dayId) {
         queryClient.invalidateQueries({ queryKey: daysKeys.all });
@@ -93,6 +95,7 @@ export function useUpdateTodo() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       // Also invalidate days and time blocks to update nested todos
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
@@ -110,6 +113,7 @@ export function useMoveTodo() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
     },
@@ -178,6 +182,7 @@ export function useDeleteTodo() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: todosKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
     },

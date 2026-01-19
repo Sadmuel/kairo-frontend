@@ -1,4 +1,5 @@
 import { useState, FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { getErrorMessage } from '@/lib/error';
@@ -53,9 +54,11 @@ export default function Register() {
       await register({ email: trimmedEmail, password, name: trimmedName });
       // Auto-login after successful registration
       await login({ email: trimmedEmail, password });
+      toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (err) {
       setError(getErrorMessage(err, 'Registration failed'));
+      // Using inline error only - user is looking at the form
     } finally {
       setIsSubmitting(false);
     }
