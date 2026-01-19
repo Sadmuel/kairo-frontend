@@ -4,4 +4,4 @@
 export { useSortable } from '@dnd-kit/sortable';
 export { CSS } from '@dnd-kit/utilities';
 export { arrayMove } from '@dnd-kit/sortable';
-export type { DragEndEvent } from '@dnd-kit/core';
+export type { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';

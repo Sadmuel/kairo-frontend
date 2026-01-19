@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { useTheme } from '@/hooks/use-theme';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
@@ -10,7 +11,15 @@ import {
   LogOut,
   Menu,
   X,
+  Sun,
+  Moon,
+  Monitor,
 } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -20,8 +29,15 @@ const navItems = [
   { to: '/stats', label: 'Stats', icon: BarChart3 },
 ];
 
+const themeOptions = [
+  { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
+  { value: 'system', label: 'System', icon: Monitor },
+] as const;
+
 export function Navbar() {
   const { logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const location = useLocation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,6 +54,8 @@ export function Navbar() {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  const ThemeIcon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -73,7 +91,32 @@ export function Navbar() {
               </Button>
             );
           })}
-          <div className="ml-2 pl-2 border-l">
+          <div className="ml-2 flex items-center gap-1 pl-2 border-l">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <ThemeIcon className="h-4 w-4" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-32 p-1" align="end">
+                {themeOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <Button
+                      key={option.value}
+                      variant={theme === option.value ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="w-full justify-start"
+                      onClick={() => setTheme(option.value)}
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      {option.label}
+                    </Button>
+                  );
+                })}
+              </PopoverContent>
+            </Popover>
             <Button
               variant="ghost"
               size="sm"
@@ -104,8 +147,16 @@ export function Navbar() {
       </div>
 
       {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <nav className="md:hidden border-t bg-background px-3 py-2">
+      <div
+        className={cn(
+          'md:hidden overflow-hidden transition-all duration-200 ease-in-out',
+          isMobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        )}
+        // inert prevents keyboard focus and hides from assistive tech when menu is closed
+        inert={!isMobileMenuOpen ? true : undefined}
+        aria-hidden={!isMobileMenuOpen}
+      >
+        <nav className="border-t bg-background px-3 py-2">
           <div className="flex flex-col gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -128,6 +179,28 @@ export function Navbar() {
                 </Button>
               );
             })}
+            <div className="mt-2 pt-2 border-t space-y-1">
+              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                Theme
+              </div>
+              <div className="flex gap-1">
+                {themeOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <Button
+                      key={option.value}
+                      variant={theme === option.value ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setTheme(option.value)}
+                    >
+                      <Icon className="mr-1.5 h-4 w-4" />
+                      {option.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
             <div className="mt-2 pt-2 border-t">
               <Button
                 variant="ghost"
@@ -141,7 +214,7 @@ export function Navbar() {
             </div>
           </div>
         </nav>
-      )}
+      </div>
     </header>
   );
 }

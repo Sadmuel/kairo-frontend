@@ -48,12 +48,12 @@ export function DayView() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-xl font-bold sm:text-2xl">
             {format(selectedDate, 'EEEE')}
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground sm:text-base">
             {format(selectedDate, 'MMMM d, yyyy')}
           </p>
         </div>
@@ -63,17 +63,30 @@ export function DayView() {
               variant={day.isCompleted ? 'default' : 'outline'}
               onClick={handleToggleComplete}
               disabled={updateDay.isPending}
+              size="sm"
               className={cn(
+                'h-10 sm:h-9',
                 day.isCompleted && 'bg-green-600 hover:bg-green-700'
               )}
             >
-              <Check className="mr-2 h-4 w-4" />
-              {day.isCompleted ? 'Completed' : 'Mark Complete'}
+              <Check className="mr-1.5 h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">
+                {day.isCompleted ? 'Completed' : 'Mark Complete'}
+              </span>
+              <span className="sm:hidden">
+                {day.isCompleted ? 'Done' : 'Complete'}
+              </span>
             </Button>
           )}
-          <Button onClick={handleAddTimeBlock} disabled={createDay.isPending}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Time Block
+          <Button
+            onClick={handleAddTimeBlock}
+            disabled={createDay.isPending}
+            size="sm"
+            className="h-10 sm:h-9"
+          >
+            <Plus className="mr-1.5 h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Time Block</span>
+            <span className="sm:hidden">Add Block</span>
           </Button>
         </div>
       </div>
@@ -106,19 +119,19 @@ export function DayView() {
 function DayViewSkeleton() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="mt-1 h-5 w-48" />
+          <Skeleton className="h-6 w-28 sm:h-8 sm:w-32" />
+          <Skeleton className="mt-1 h-4 w-36 sm:h-5 sm:w-48" />
         </div>
         <div className="flex gap-2">
-          <Skeleton className="h-10 w-32" />
-          <Skeleton className="h-10 w-36" />
+          <Skeleton className="h-10 w-24 sm:h-9 sm:w-32" />
+          <Skeleton className="h-10 w-28 sm:h-9 sm:w-36" />
         </div>
       </div>
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full" />
+          <Skeleton key={i} className="h-20 w-full sm:h-24" />
         ))}
       </div>
     </div>

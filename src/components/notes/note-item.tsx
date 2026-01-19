@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { GripVertical, Pencil, Trash2, Check, X } from 'lucide-react';
 import { useSortable, CSS } from '@/lib/dnd-kit';
 import { Button } from '@/components/ui/button';
@@ -46,8 +47,10 @@ export function NoteItem({ note }: NoteItemProps) {
         data: { content: editContent },
       });
       setIsEditing(false);
+      toast.success('Note updated');
     } catch {
       setSaveError('Failed to save note. Please try again.');
+      // Using inline error only - user is looking at the edit form
     }
   };
 
@@ -61,8 +64,10 @@ export function NoteItem({ note }: NoteItemProps) {
     setDeleteError(null);
     try {
       await deleteNote.mutateAsync(note.id);
+      toast.success('Note deleted');
     } catch {
       setDeleteError('Failed to delete note. Please try again.');
+      // Using inline error only - user is looking at this component
     }
   };
 

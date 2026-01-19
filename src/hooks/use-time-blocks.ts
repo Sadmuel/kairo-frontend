@@ -7,6 +7,7 @@ import type {
 } from '@/types/calendar';
 import { daysKeys } from './use-days';
 import { statsKeys } from './use-stats';
+import { dashboardKeys } from './use-dashboard';
 
 export const timeBlocksKeys = {
   all: ['time-blocks'] as const,
@@ -35,6 +36,7 @@ export function useCreateTimeBlock() {
       });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error, variables) => {
       console.error('Failed to create time block:', error, { dayId: variables.dayId });
@@ -53,6 +55,7 @@ export function useUpdateTimeBlock() {
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error, variables) => {
       console.error('Failed to update time block:', error, { id: variables.id });
@@ -73,6 +76,7 @@ export function useDeleteTimeBlock() {
       });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error, variables) => {
       console.error('Failed to delete time block:', error, { id: variables.id, dayId: variables.dayId });

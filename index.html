@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>kairo-frontend</title>
+    <script>
+      // Prevent flash of incorrect theme by setting class before render
+      (function() {
+        const stored = localStorage.getItem('kairo-theme');
+        const theme = stored === 'light' || stored === 'dark' ? stored :
+          (stored === 'system' || !stored) && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
