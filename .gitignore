@@ -19,6 +19,9 @@ dist-ssr
 
 # TypeScript build info
 *.tsbuildinfo
+
+# Test coverage
+coverage
 vite.config.js
 vite.config.d.ts
 
