@@ -15,10 +15,12 @@ import {
   useTodayStats,
   useThisWeekStats,
 } from '@/hooks/use-stats';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 
 type TimePeriod = 'today' | 'week' | 'overall';
 
 export default function StatsPage() {
+  useDocumentTitle('Stats');
   const [period, setPeriod] = useState<TimePeriod>('week');
 
   const {

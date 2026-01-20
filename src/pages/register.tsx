@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 import { getErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/card';
 
 export default function Register() {
+  useDocumentTitle('Register');
   const navigate = useNavigate();
   const { register, login } = useAuth();
 
