@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { Analytics } from '@vercel/analytics/react';
 import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/context/auth-context';
 import { ThemeProvider } from '@/context/theme-context';
@@ -47,6 +48,7 @@ function App() {
             </Routes>
             <Toaster />
           </BrowserRouter>
+          <Analytics />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
