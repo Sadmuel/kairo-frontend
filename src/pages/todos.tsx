@@ -6,10 +6,12 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { TodoListSkeleton } from '@/components/ui/skeletons';
 import { TodoList } from '@/components/todos/todo-list';
 import { useInboxTodos } from '@/hooks/use-todos';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 
 type FilterType = 'active' | 'completed' | 'all';
 
 export default function TodosPage() {
+  useDocumentTitle('Inbox');
   const [filter, setFilter] = useState<FilterType>('active');
 
   const filterQuery =

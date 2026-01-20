@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useDashboard } from '@/hooks/use-dashboard';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -12,6 +13,7 @@ import {
 } from '@/components/dashboard';
 
 export default function Dashboard() {
+  useDocumentTitle('Dashboard');
   const { user } = useAuth();
   const { data, isLoading, error, refetch } = useDashboard();
 

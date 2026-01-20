@@ -2,6 +2,7 @@ import { useState, FormEvent } from 'react';
 import { toast } from 'sonner';
 import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { useDocumentTitle } from '@/hooks/use-document-title';
 import { getErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ interface LocationState {
 }
 
 export default function Login() {
+  useDocumentTitle('Login');
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
