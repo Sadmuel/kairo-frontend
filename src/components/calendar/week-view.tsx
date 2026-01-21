@@ -10,10 +10,10 @@ import { EventBadge } from '@/components/events';
 import { EventModal } from '@/components/events';
 import type { Day, EventOccurrence } from '@/types/calendar';
 
-const HOURS = Array.from({ length: 19 }, (_, i) => i + 6); // 6 AM to 12 AM
+const HOURS = Array.from({ length: 18 }, (_, i) => i + 6); // 6 AM to 11 PM
 
 export function WeekView() {
-  const { selectedDate, setSelectedDate, setCurrentView } = useCalendar();
+  const { selectedDate, navigateToDate } = useCalendar();
   const { data: days, isLoading: isDaysLoading } = useDaysForWeek(selectedDate);
   const { data: events, isLoading: isEventsLoading } = useEventsForWeek(selectedDate);
   const [selectedEvent, setSelectedEvent] = useState<EventOccurrence | null>(null);
@@ -24,7 +24,8 @@ export function WeekView() {
 
   const daysMap = useMemo(() => {
     if (!days) return new Map<string, Day>();
-    return new Map(days.map((day) => [formatDateForApi(new Date(day.date)), day]));
+    // Extract date string directly to avoid timezone conversion issues
+    return new Map(days.map((day) => [day.date.split('T')[0], day]));
   }, [days]);
 
   const eventsMap = useMemo(() => {
@@ -46,8 +47,7 @@ export function WeekView() {
   );
 
   const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    setCurrentView('day');
+    navigateToDate(date, 'day');
   };
 
   if (isLoading) {
@@ -173,12 +173,10 @@ export function WeekView() {
                             height: `${Math.max(height, 4)}%`,
                           } as React.CSSProperties}
                         >
-                          <div className="truncate font-medium">{block.name}</div>
-                          {height > 10 && (
-                            <div className="hidden text-[10px] opacity-75 sm:block">
-                              {block.startTime} - {block.endTime}
-                            </div>
-                          )}
+                          <div className="truncate font-medium text-gray-900">{block.name}</div>
+                          <div className="text-[8px] text-gray-700 sm:text-[10px]">
+                            {block.startTime} - {block.endTime}
+                          </div>
                         </div>
                       );
                     })}

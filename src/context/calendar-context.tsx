@@ -13,7 +13,7 @@ import {
   addDays,
   subDays,
   startOfToday,
-  parseISO,
+  parse,
   format,
 } from 'date-fns';
 import type { CalendarView } from '@/types/calendar';
@@ -23,6 +23,7 @@ interface CalendarContextType {
   currentView: CalendarView;
   setSelectedDate: (date: Date) => void;
   setCurrentView: (view: CalendarView) => void;
+  navigateToDate: (date: Date, view: CalendarView) => void;
   goToToday: () => void;
   goToPrevious: () => void;
   goToNext: () => void;
@@ -41,7 +42,7 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
   const selectedDate = useMemo(() => {
     const dateParam = searchParams.get('date');
     if (dateParam) {
-      const parsed = parseISO(dateParam);
+      const parsed = parse(dateParam, 'yyyy-MM-dd', new Date());
       if (!isNaN(parsed.getTime())) {
         return parsed;
       }
@@ -68,6 +69,15 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
 
   const setCurrentView = useCallback((view: CalendarView) => {
     setSearchParams((prev) => {
+      prev.set('view', view);
+      return prev;
+    }, { replace: false });
+  }, [setSearchParams]);
+
+  // Combined update for date and view to avoid batching issues
+  const navigateToDate = useCallback((date: Date, view: CalendarView) => {
+    setSearchParams((prev) => {
+      prev.set('date', format(date, 'yyyy-MM-dd'));
       prev.set('view', view);
       return prev;
     }, { replace: false });
@@ -126,11 +136,12 @@ export function CalendarProvider({ children }: { children: ReactNode }) {
       currentView,
       setSelectedDate,
       setCurrentView,
+      navigateToDate,
       goToToday,
       goToPrevious,
       goToNext,
     }),
-    [selectedDate, currentView, setSelectedDate, setCurrentView, goToToday, goToPrevious, goToNext]
+    [selectedDate, currentView, setSelectedDate, setCurrentView, navigateToDate, goToToday, goToPrevious, goToNext]
   );
 
   return (
