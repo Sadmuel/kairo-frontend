@@ -11,7 +11,7 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const WEEKDAYS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export function MonthView() {
-  const { selectedDate, setSelectedDate, setCurrentView } = useCalendar();
+  const { selectedDate, navigateToDate } = useCalendar();
   const { data: days, isLoading: isDaysLoading } = useDaysForMonth(selectedDate);
   const { data: events, isLoading: isEventsLoading } = useEventsForMonth(selectedDate);
 
@@ -39,8 +39,7 @@ export function MonthView() {
   }, [events]);
 
   const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    setCurrentView('day');
+    navigateToDate(date, 'day');
   };
 
   if (isLoading) {
