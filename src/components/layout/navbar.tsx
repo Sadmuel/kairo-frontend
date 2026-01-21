@@ -15,6 +15,7 @@ import {
   Moon,
   Monitor,
 } from 'lucide-react';
+import { KairoLogo } from '@/components/ui/kairo-logo';
 import {
   Popover,
   PopoverContent,
@@ -63,9 +64,9 @@ export function Navbar() {
         {/* Logo/Brand */}
         <Link
           to="/dashboard"
-          className="flex items-center gap-2 font-bold text-lg hover:opacity-80 transition-opacity"
+          className="flex items-center hover:opacity-80 transition-opacity"
         >
-          <span className="text-primary">Kairo</span>
+          <KairoLogo className="h-8 md:h-10" />
         </Link>
 
         {/* Desktop Navigation */}
