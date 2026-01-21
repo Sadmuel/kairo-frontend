@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+
+// Parse date string without timezone conversion
+function parseDateLocal(dateStr: string): Date {
+  const datePart = dateStr.split('T')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -165,7 +172,7 @@ export default function StatsPage() {
               <CompletionRateCard
                 title={
                   weekStats
-                    ? `${format(new Date(weekStats.weekStart), 'MMM d')} - ${format(new Date(weekStats.weekEnd), 'MMM d')}`
+                    ? `${format(parseDateLocal(weekStats.weekStart), 'MMM d')} - ${format(parseDateLocal(weekStats.weekEnd), 'MMM d')}`
                     : 'This Week'
                 }
                 todoRate={weekStats?.todoCompletionRate ?? 0}
@@ -197,7 +204,7 @@ export default function StatsPage() {
                   <div className="space-y-4">
                     <p className="text-sm text-muted-foreground">
                       {overallStats?.lastCompletedDate
-                        ? `Last completed day: ${format(new Date(overallStats.lastCompletedDate), 'MMMM d, yyyy')}`
+                        ? `Last completed day: ${format(parseDateLocal(overallStats.lastCompletedDate), 'MMMM d, yyyy')}`
                         : 'No days completed yet'}
                     </p>
                     <div className="grid grid-cols-2 gap-4">
