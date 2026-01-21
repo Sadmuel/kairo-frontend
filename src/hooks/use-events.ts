@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { eventsService } from '@/services/events';
 import type { CreateEventDto, UpdateEventDto } from '@/types/calendar';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { dashboardKeys } from './use-dashboard';
 
 export const eventsKeys = {
   all: ['events'] as const,
@@ -76,6 +77,7 @@ export function useCreateEvent() {
     mutationFn: (data: CreateEventDto) => eventsService.create(data),
     onSuccess: () => {
       invalidateAllEventsQueries(queryClient);
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error) => {
       console.error('Failed to create event:', error);
@@ -92,6 +94,7 @@ export function useUpdateEvent() {
       eventsService.update(id, data),
     onSuccess: () => {
       invalidateAllEventsQueries(queryClient);
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error, variables) => {
       console.error('Failed to update event:', error, { id: variables.id });
@@ -107,6 +110,7 @@ export function useDeleteEvent() {
     mutationFn: (id: string) => eventsService.delete(id),
     onSuccess: () => {
       invalidateAllEventsQueries(queryClient);
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
     onError: (error, id) => {
       console.error('Failed to delete event:', error, { id });

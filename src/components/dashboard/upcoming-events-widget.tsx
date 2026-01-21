@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { format, isToday, isTomorrow, parseISO } from 'date-fns';
+import { format, startOfToday, addDays } from 'date-fns';
 import { CalendarDays, ChevronRight, Repeat } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,10 +10,20 @@ interface UpcomingEventsWidgetProps {
   isLoading?: boolean;
 }
 
+// Parse date string without timezone conversion
+function parseDateLocal(dateStr: string): Date {
+  const datePart = dateStr.split('T')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
 function formatEventDate(dateStr: string): string {
-  const date = parseISO(dateStr);
-  if (isToday(date)) return 'Today';
-  if (isTomorrow(date)) return 'Tomorrow';
+  const date = parseDateLocal(dateStr);
+  const today = startOfToday();
+  const tomorrow = addDays(today, 1);
+
+  if (date.getTime() === today.getTime()) return 'Today';
+  if (date.getTime() === tomorrow.getTime()) return 'Tomorrow';
   return format(date, 'EEE, MMM d');
 }
 
@@ -27,7 +37,7 @@ function EventItem({ event }: { event: DashboardEvent }) {
           color: '#1a1a1a',
         }}
       >
-        {format(parseISO(event.occurrenceDate), 'd')}
+        {parseDateLocal(event.occurrenceDate).getDate()}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
