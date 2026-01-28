@@ -42,7 +42,7 @@ export default function Dashboard() {
     <main className="container mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-6">
       <div className="space-y-6">
         {/* Header */}
-        <div className="space-y-1">
+        <div className="space-y-1" data-tutorial="dashboard-header">
           <h1 className="text-2xl font-bold sm:text-3xl">
             Welcome back, {user?.name?.split(' ')[0]}!
           </h1>
@@ -55,13 +55,19 @@ export default function Dashboard() {
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {/* Left Column */}
           <div className="space-y-4 sm:space-y-6">
-            <TodayProgressWidget data={data?.today} isLoading={isLoading} />
-            <TimeBlockListWidget data={data?.todayDetail} isLoading={isLoading} />
+            <div data-tutorial="today-progress">
+              <TodayProgressWidget data={data?.today} isLoading={isLoading} />
+            </div>
+            <div data-tutorial="time-blocks-widget">
+              <TimeBlockListWidget data={data?.todayDetail} isLoading={isLoading} />
+            </div>
           </div>
 
           {/* Right Column */}
           <div className="space-y-4 sm:space-y-6">
-            <StreakWidget data={data?.streaks} isLoading={isLoading} />
+            <div data-tutorial="streaks-widget">
+              <StreakWidget data={data?.streaks} isLoading={isLoading} />
+            </div>
             <UpcomingEventsWidget data={data?.upcomingEvents} isLoading={isLoading} />
           </div>
         </div>
