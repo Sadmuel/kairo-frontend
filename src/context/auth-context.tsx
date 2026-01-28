@@ -16,6 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (data: LoginDto) => Promise<void>;
+  loginDemo: () => Promise<void>;
   register: (data: RegisterDto) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -76,6 +77,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(response.user);
   }, []);
 
+  const loginDemo = useCallback(async () => {
+    const response = await authService.loginDemo();
+    tokenStore.setAccessToken(response.accessToken);
+    tokenStore.setRefreshToken(response.refreshToken);
+    setUser(response.user);
+  }, []);
+
   const register = useCallback(async (data: RegisterDto) => {
     await authService.register(data);
   }, []);
@@ -102,8 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, isAuthenticated, isLoading, login, register, logout }),
-    [user, isAuthenticated, isLoading, login, register, logout]
+    () => ({ user, isAuthenticated, isLoading, login, loginDemo, register, logout }),
+    [user, isAuthenticated, isLoading, login, loginDemo, register, logout]
   );
 
   return (

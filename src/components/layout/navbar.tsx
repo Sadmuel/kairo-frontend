@@ -24,10 +24,10 @@ import {
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/calendar', label: 'Calendar', icon: Calendar },
-  { to: '/todos', label: 'Inbox', icon: Inbox },
-  { to: '/stats', label: 'Stats', icon: BarChart3 },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, tutorialId: 'nav-dashboard' },
+  { to: '/calendar', label: 'Calendar', icon: Calendar, tutorialId: 'nav-calendar' },
+  { to: '/todos', label: 'Inbox', icon: Inbox, tutorialId: 'nav-todos' },
+  { to: '/stats', label: 'Stats', icon: BarChart3, tutorialId: 'nav-stats' },
 ];
 
 const themeOptions = [
@@ -84,6 +84,7 @@ export function Navbar() {
                   'h-9',
                   isActive && 'bg-secondary'
                 )}
+                data-tutorial={item.tutorialId}
               >
                 <Link to={item.to}>
                   <Icon className="mr-2 h-4 w-4" />

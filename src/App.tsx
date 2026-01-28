@@ -4,9 +4,11 @@ import { Analytics } from '@vercel/analytics/react';
 import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/context/auth-context';
 import { ThemeProvider } from '@/context/theme-context';
+import { TutorialProvider } from '@/context/tutorial-context';
 import { CalendarProvider } from '@/context/calendar-context';
 import { ProtectedRoute } from '@/components/protected-route';
 import { GuestRoute } from '@/components/guest-route';
+import { TutorialOverlay } from '@/components/tutorial/tutorial-overlay';
 import { Toaster } from '@/components/ui/sonner';
 import Login from '@/pages/login';
 import Register from '@/pages/register';
@@ -21,32 +23,35 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Routes>
-              {/* Root redirects to dashboard (will redirect to login if not authenticated) */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <TutorialProvider>
+              <Routes>
+                {/* Root redirects to dashboard (will redirect to login if not authenticated) */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-              {/* Guest-only routes (redirect to dashboard if authenticated) */}
-              <Route element={<GuestRoute />}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Route>
+                {/* Guest-only routes (redirect to dashboard if authenticated) */}
+                <Route element={<GuestRoute />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                </Route>
 
-              {/* Protected routes (require authentication) */}
-              <Route element={<ProtectedRoute />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route
-                  path="/calendar"
-                  element={
-                    <CalendarProvider>
-                      <CalendarPage />
-                    </CalendarProvider>
-                  }
-                />
-                <Route path="/todos" element={<TodosPage />} />
-                <Route path="/stats" element={<StatsPage />} />
-              </Route>
-            </Routes>
-            <Toaster />
+                {/* Protected routes (require authentication) */}
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route
+                    path="/calendar"
+                    element={
+                      <CalendarProvider>
+                        <CalendarPage />
+                      </CalendarProvider>
+                    }
+                  />
+                  <Route path="/todos" element={<TodosPage />} />
+                  <Route path="/stats" element={<StatsPage />} />
+                </Route>
+              </Routes>
+              <TutorialOverlay />
+              <Toaster />
+            </TutorialProvider>
           </BrowserRouter>
           <Analytics />
         </AuthProvider>
