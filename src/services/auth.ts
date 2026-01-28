@@ -13,6 +13,11 @@ export const authService = {
     return response.data
   },
 
+  async loginDemo(): Promise<AuthResponse> {
+    const response = await api.post<AuthResponse>('/auth/demo')
+    return response.data
+  },
+
   async refresh(data: RefreshTokenDto): Promise<AuthResponse> {
     // Use plain axios to avoid interceptor interference
     const response = await axios.post<AuthResponse>(`${API_URL}/auth/refresh`, data)

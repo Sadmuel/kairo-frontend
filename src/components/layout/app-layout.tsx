@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Navbar } from './navbar';
+import { DemoBanner } from '@/components/demo-banner';
 import { useGlobalKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 export function AppLayout() {
@@ -8,6 +9,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
+      <DemoBanner />
       <Navbar />
       <Outlet />
     </div>

@@ -11,6 +11,7 @@ export const mockUser: User = {
   id: 'user-1',
   email: 'test@example.com',
   name: 'Test User',
+  isDemoUser: false,
   currentStreak: 5,
   longestStreak: 10,
   lastCompletedDate: '2024-01-15',
