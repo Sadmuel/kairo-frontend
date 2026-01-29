@@ -11,14 +11,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  BLOCK_COLORS,
   DEFAULT_BLOCK_COLOR,
   type Event,
   type CreateEventDto,
   type UpdateEventDto,
   type RecurrenceType,
 } from '@/types/calendar';
-import { cn } from '@/lib/utils';
+import { ColorPicker } from '@/components/ui/color-picker';
 import { formatDateForApi } from '@/lib/date-utils';
 
 interface EventFormCreateProps {
@@ -146,23 +145,7 @@ export function EventForm(props: EventFormProps) {
 
       <div className="space-y-2">
         <Label>Color</Label>
-        <div className="flex flex-wrap gap-2 sm:gap-2">
-          {BLOCK_COLORS.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              onClick={() => setColor(c.value)}
-              className={cn(
-                'h-10 w-10 rounded-full transition-all sm:h-8 sm:w-8',
-                color === c.value && 'ring-2 ring-offset-2 ring-primary'
-              )}
-              style={{ backgroundColor: c.value }}
-              title={c.name}
-              aria-label={c.name}
-              disabled={isPending}
-            />
-          ))}
-        </div>
+        <ColorPicker value={color} onChange={setColor} disabled={isPending} />
       </div>
 
       <div className="space-y-3">

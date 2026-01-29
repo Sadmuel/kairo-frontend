@@ -9,7 +9,7 @@ import { TimeBlockList } from '@/components/time-blocks/time-block-list';
 import { TimeBlockModal } from '@/components/time-blocks/time-block-modal';
 import { DayTodoSection } from '@/components/todos/day-todo-section';
 import { EventsSection } from '@/components/events';
-import { useState } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export function DayView() {
@@ -24,12 +24,36 @@ export function DayView() {
   // Use the fetched day's id, or fall back to the newly created day's id
   const dayId = day?.id ?? createdDayId;
 
-  const handleAddTimeBlock = async () => {
-    if (!day) {
-      // Create the day and capture the returned id
-      const newDay = await createDay.mutateAsync({ date: dateString });
-      setCreatedDayId(newDay.id);
+  // Deduplicated day creation — shared by time blocks and todos
+  const pendingDayPromise = useRef<Promise<string> | null>(null);
+  const latestRefs = useRef({ day, createdDayId, dateString, createDay });
+  latestRefs.current = { day, createdDayId, dateString, createDay };
+
+  useEffect(() => {
+    // Reset pending promise when date changes
+    pendingDayPromise.current = null;
+  }, [dateString]);
+
+  const ensureDayId = useCallback(async (): Promise<string> => {
+    const { day, createdDayId, dateString, createDay } = latestRefs.current;
+    const existing = day?.id ?? createdDayId;
+    if (existing) return existing;
+
+    if (!pendingDayPromise.current) {
+      pendingDayPromise.current = createDay
+        .mutateAsync({ date: dateString })
+        .then((newDay) => {
+          setCreatedDayId(newDay.id);
+          return newDay.id;
+        });
     }
+
+    return pendingDayPromise.current;
+  }, []);
+
+  const handleAddTimeBlock = () => {
+    // Start creating the day eagerly — submit will await the same promise
+    ensureDayId();
     setIsModalOpen(true);
   };
 
@@ -93,7 +117,7 @@ export function DayView() {
 
       <EventsSection date={selectedDate} />
 
-      {day && <DayTodoSection dayId={day.id} />}
+      <DayTodoSection dayId={dayId ?? undefined} ensureDayId={ensureDayId} />
 
       {day ? (
         <TimeBlockList day={day} />
@@ -105,13 +129,12 @@ export function DayView() {
         </div>
       )}
 
-      {dayId && (
-        <TimeBlockModal
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-          dayId={dayId}
-        />
-      )}
+      <TimeBlockModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        dayId={dayId}
+        ensureDayId={ensureDayId}
+      />
     </div>
   );
 }

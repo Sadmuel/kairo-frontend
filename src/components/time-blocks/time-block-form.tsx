@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TimePicker } from './time-picker';
-import { BLOCK_COLORS, DEFAULT_BLOCK_COLOR } from '@/types/calendar';
+import { DEFAULT_BLOCK_COLOR } from '@/types/calendar';
 import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto } from '@/types/calendar';
-import { cn } from '@/lib/utils';
+import { ColorPicker } from '@/components/ui/color-picker';
 
 interface TimeBlockFormCreateProps {
   mode: 'create';
@@ -105,24 +105,7 @@ export function TimeBlockForm(props: TimeBlockFormProps) {
 
       <div className="space-y-2">
         <Label>Color</Label>
-        {/* Color buttons - larger touch targets on mobile */}
-        <div className="flex flex-wrap gap-2 sm:gap-2">
-          {BLOCK_COLORS.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              onClick={() => setColor(c.value)}
-              className={cn(
-                'h-10 w-10 rounded-full transition-all sm:h-8 sm:w-8',
-                color === c.value && 'ring-2 ring-offset-2 ring-primary'
-              )}
-              style={{ backgroundColor: c.value }}
-              title={c.name}
-              aria-label={c.name}
-              disabled={isPending}
-            />
-          ))}
-        </div>
+        <ColorPicker value={color} onChange={setColor} disabled={isPending} />
       </div>
 
       {error && (
