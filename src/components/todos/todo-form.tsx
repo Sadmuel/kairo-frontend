@@ -10,9 +10,10 @@ import { cn } from '@/lib/utils';
 interface TodoFormProps {
   dayId?: string;
   timeBlockId?: string;
+  onBeforeCreate?: () => Promise<{ dayId?: string }>;
 }
 
-export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
+export function TodoForm({ dayId, timeBlockId, onBeforeCreate }: TodoFormProps) {
   const [title, setTitle] = useState('');
   const [deadline, setDeadline] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
@@ -26,10 +27,16 @@ export function TodoForm({ dayId, timeBlockId }: TodoFormProps) {
 
     setError(null);
     try {
+      let resolvedDayId = dayId;
+      if (onBeforeCreate) {
+        const result = await onBeforeCreate();
+        resolvedDayId = result.dayId ?? dayId;
+      }
+
       await createTodo.mutateAsync({
         title: title.trim(),
         deadline: deadline || undefined,
-        dayId,
+        dayId: resolvedDayId,
         timeBlockId,
       });
 

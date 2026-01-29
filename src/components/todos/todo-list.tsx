@@ -24,6 +24,7 @@ interface TodoListProps {
   timeBlockId?: string;
   inbox?: boolean;
   showForm?: boolean;
+  onBeforeCreate?: () => Promise<{ dayId?: string }>;
 }
 
 export function TodoList({
@@ -32,6 +33,7 @@ export function TodoList({
   timeBlockId,
   inbox,
   showForm = true,
+  onBeforeCreate,
 }: TodoListProps) {
   const reorderTodos = useReorderTodos();
 
@@ -83,7 +85,7 @@ export function TodoList({
         </DndContext>
       )}
 
-      {showForm && <TodoForm dayId={dayId} timeBlockId={timeBlockId} />}
+      {showForm && <TodoForm dayId={dayId} timeBlockId={timeBlockId} onBeforeCreate={onBeforeCreate} />}
     </div>
   );
 }

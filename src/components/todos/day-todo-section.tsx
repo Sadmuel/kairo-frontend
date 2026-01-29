@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, ListTodo } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -6,13 +6,19 @@ import { TodoList } from './todo-list';
 import { useTodosByDay } from '@/hooks/use-todos';
 
 interface DayTodoSectionProps {
-  dayId: string;
+  dayId?: string;
+  ensureDayId: () => Promise<string>;
 }
 
-export function DayTodoSection({ dayId }: DayTodoSectionProps) {
+export function DayTodoSection({ dayId, ensureDayId }: DayTodoSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const { data: todos = [], isLoading } = useTodosByDay(dayId);
-  const contentId = `day-todos-${dayId}`;
+  const contentId = `day-todos-${dayId ?? 'new'}`;
+
+  const onBeforeCreate = useCallback(async () => {
+    const id = await ensureDayId();
+    return { dayId: id };
+  }, [ensureDayId]);
 
   const completedCount = todos.filter((t) => t.isCompleted).length;
   const totalCount = todos.length;
@@ -49,7 +55,11 @@ export function DayTodoSection({ dayId }: DayTodoSectionProps) {
               <Skeleton className="h-8 w-3/4" />
             </div>
           ) : (
-            <TodoList todos={todos} dayId={dayId} />
+            <TodoList
+              todos={todos}
+              dayId={dayId}
+              onBeforeCreate={onBeforeCreate}
+            />
           )}
         </div>
       )}
