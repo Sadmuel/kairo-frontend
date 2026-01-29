@@ -32,10 +32,10 @@ export function useTodos(filters?: TodoFilterQuery) {
 }
 
 // Get todos for a specific day
-export function useTodosByDay(dayId: string) {
+export function useTodosByDay(dayId: string | undefined) {
   return useQuery({
-    queryKey: todosKeys.byDay(dayId),
-    queryFn: () => todosService.getAll({ dayId }),
+    queryKey: todosKeys.byDay(dayId ?? ''),
+    queryFn: () => todosService.getAll({ dayId: dayId! }),
     enabled: !!dayId,
   });
 }

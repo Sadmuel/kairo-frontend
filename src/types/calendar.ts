@@ -171,13 +171,22 @@ export interface CalendarState {
   currentView: CalendarView;
 }
 
-// Color palette for time blocks
+// Color palette for time blocks and events
 export const BLOCK_COLORS = [
   { name: 'Blue', value: '#A5D8FF' },
+  { name: 'Cyan', value: '#99E9F2' },
+  { name: 'Teal', value: '#96F2D7' },
   { name: 'Green', value: '#B2F2BB' },
+  { name: 'Lime', value: '#D8F5A2' },
   { name: 'Yellow', value: '#FFEC99' },
+  { name: 'Orange', value: '#FFD8A8' },
+  { name: 'Red', value: '#FFC9C9' },
   { name: 'Pink', value: '#FCC2D7' },
+  { name: 'Grape', value: '#E599F7' },
   { name: 'Purple', value: '#D0BFFF' },
+  { name: 'Indigo', value: '#BAC8FF' },
+  { name: 'Gray', value: '#DEE2E6' },
+  { name: 'Peach', value: '#FFDDD5' },
 ] as const;
 
 export const DEFAULT_BLOCK_COLOR = '#A5D8FF';

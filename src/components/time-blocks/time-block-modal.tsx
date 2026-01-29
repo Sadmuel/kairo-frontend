@@ -12,7 +12,8 @@ import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto } from '@/types/
 interface TimeBlockModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  dayId: string;
+  dayId?: string | null;
+  ensureDayId?: () => Promise<string>;
   timeBlock?: TimeBlock;
 }
 
@@ -20,6 +21,7 @@ export function TimeBlockModal({
   open,
   onOpenChange,
   dayId,
+  ensureDayId,
   timeBlock,
 }: TimeBlockModalProps) {
   const createTimeBlock = useCreateTimeBlock();
@@ -28,7 +30,15 @@ export function TimeBlockModal({
 
   const handleCreate = async (data: CreateTimeBlockDto) => {
     try {
-      await createTimeBlock.mutateAsync(data);
+      let resolvedDayId = dayId;
+      if (!resolvedDayId && ensureDayId) {
+        resolvedDayId = await ensureDayId();
+      }
+      if (!resolvedDayId) {
+        toast.error('Failed to create time block');
+        return;
+      }
+      await createTimeBlock.mutateAsync({ ...data, dayId: resolvedDayId });
       onOpenChange(false);
       toast.success('Time block created');
     } catch {
@@ -61,7 +71,7 @@ export function TimeBlockModal({
         {isEdit && timeBlock ? (
           <TimeBlockForm
             mode="edit"
-            dayId={dayId}
+            dayId={dayId ?? ''}
             timeBlock={timeBlock}
             onSubmit={handleUpdate}
             onCancel={() => onOpenChange(false)}
@@ -70,7 +80,7 @@ export function TimeBlockModal({
         ) : (
           <TimeBlockForm
             mode="create"
-            dayId={dayId}
+            dayId={dayId ?? ''}
             onSubmit={handleCreate}
             onCancel={() => onOpenChange(false)}
             isPending={createTimeBlock.isPending}

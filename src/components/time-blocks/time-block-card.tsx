@@ -11,7 +11,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { formatTime } from '@/lib/date-utils';
 import { useUpdateTimeBlock, useDeleteTimeBlock } from '@/hooks/use-time-blocks';
 import { TimeBlockModal } from './time-block-modal';
-import { NoteList } from '@/components/notes/note-list';
+import { NoteSection } from '@/components/notes/note-section';
 import { TodoSection } from '@/components/todos/todo-section';
 import type { TimeBlock } from '@/types/calendar';
 import { cn } from '@/lib/utils';
@@ -169,14 +169,14 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
               </div>
             </div>
 
-            {/* Notes and Todos section (expanded) */}
+            {/* Todos and Notes section (expanded) */}
             {isExpanded && (
               <div className="mt-3 pt-3 border-t space-y-4">
-                <NoteList timeBlockId={timeBlock.id} notes={timeBlock.notes} />
                 <TodoSection
                   timeBlockId={timeBlock.id}
                   todos={timeBlock.todos || []}
                 />
+                <NoteSection timeBlockId={timeBlock.id} notes={timeBlock.notes} />
               </div>
             )}
 
