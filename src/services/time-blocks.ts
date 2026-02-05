@@ -4,6 +4,7 @@ import type {
   CreateTimeBlockDto,
   UpdateTimeBlockDto,
   ReorderTimeBlocksDto,
+  DuplicateTimeBlockDto,
 } from '@/types/calendar';
 
 export const timeBlocksService = {
@@ -37,6 +38,11 @@ export const timeBlocksService = {
     const response = await api.patch<TimeBlock[]>('/time-blocks/reorder', data, {
       params: { dayId },
     });
+    return response.data;
+  },
+
+  async duplicate(id: string, data: DuplicateTimeBlockDto): Promise<TimeBlock> {
+    const response = await api.post<TimeBlock>(`/time-blocks/${id}/duplicate`, data);
     return response.data;
   },
 };

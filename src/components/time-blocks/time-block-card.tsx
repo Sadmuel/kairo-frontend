@@ -2,15 +2,20 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { ChevronDown, ChevronUp, GripVertical, Pencil, Trash2 } from 'lucide-react';
+import { Calendar, Check, ChevronDown, ChevronUp, Copy, GripVertical, Pencil, Repeat, Trash2 } from 'lucide-react';
 import { useSortable, CSS } from '@/lib/dnd-kit';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatTime } from '@/lib/date-utils';
-import { useUpdateTimeBlock, useDeleteTimeBlock } from '@/hooks/use-time-blocks';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useUpdateTimeBlock, useDeleteTimeBlock, useDuplicateTimeBlock } from '@/hooks/use-time-blocks';
+import { useDeactivateTemplate } from '@/hooks/use-time-block-templates';
 import { TimeBlockModal } from './time-block-modal';
+import { DuplicateTimeBlockModal } from './duplicate-time-block-modal';
+import { RecurringDeleteDialog } from './recurring-delete-dialog';
 import { NoteSection } from '@/components/notes/note-section';
 import { TodoSection } from '@/components/todos/todo-section';
 import type { TimeBlock } from '@/types/calendar';
@@ -25,10 +30,16 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  const [isDuplicatePopoverOpen, setIsDuplicatePopoverOpen] = useState(false);
   const [toggleError, setToggleError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showDuplicateSuccess, setShowDuplicateSuccess] = useState(false);
   const updateTimeBlock = useUpdateTimeBlock();
   const deleteTimeBlock = useDeleteTimeBlock();
+  const duplicateTimeBlock = useDuplicateTimeBlock();
+  const deactivateTemplate = useDeactivateTemplate();
+  const isRecurring = !!timeBlock.templateId;
 
   const {
     attributes,
@@ -78,6 +89,39 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
     }
   };
 
+  const handleQuickDuplicate = async () => {
+    try {
+      await duplicateTimeBlock.mutateAsync({
+        id: timeBlock.id,
+        data: {
+          targetDayId: dayId,
+          includeNotes: true,
+          includeTodos: false,
+        },
+      });
+      setShowDuplicateSuccess(true);
+      setTimeout(() => setShowDuplicateSuccess(false), 1500);
+      toast.success('Time block duplicated');
+    } catch {
+      toast.error('Failed to duplicate time block');
+    }
+  };
+
+  const handleStopRecurring = async () => {
+    if (!timeBlock.templateId) return;
+    setDeleteError(null);
+    try {
+      await deactivateTemplate.mutateAsync({
+        id: timeBlock.templateId,
+        data: { deleteFutureOccurrences: true },
+      });
+      setIsDeleteDialogOpen(false);
+      toast.success('Recurring time block stopped');
+    } catch {
+      setDeleteError('Failed to stop recurring. Please try again.');
+    }
+  };
+
   return (
     <>
       <Card
@@ -119,11 +163,21 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
               <div className="min-w-0">
                 <h3
                   className={cn(
-                    'font-medium truncate text-sm sm:text-base',
+                    'font-medium truncate text-sm sm:text-base flex items-center gap-1.5',
                     timeBlock.isCompleted && 'line-through text-muted-foreground'
                   )}
                 >
                   {timeBlock.name}
+                  {isRecurring && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Repeat className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        </TooltipTrigger>
+                        <TooltipContent>Recurring time block</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </h3>
                 <p className="text-xs text-muted-foreground sm:text-sm">
                   {formatTime(timeBlock.startTime)} - {formatTime(timeBlock.endTime)}
@@ -135,6 +189,47 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
 
               {/* Action buttons - min 44px touch targets on mobile */}
               <div className="flex items-center gap-0 shrink-0 sm:gap-1">
+                <Popover open={isDuplicatePopoverOpen} onOpenChange={setIsDuplicatePopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Duplicate time block"
+                      className="h-10 w-10 sm:h-9 sm:w-9"
+                      disabled={duplicateTimeBlock.isPending}
+                    >
+                      {showDuplicateSuccess ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-1" align="end">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-9 px-2"
+                      onClick={() => {
+                        setIsDuplicatePopoverOpen(false);
+                        handleQuickDuplicate();
+                      }}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Same day
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-9 px-2"
+                      onClick={() => {
+                        setIsDuplicatePopoverOpen(false);
+                        setIsDuplicateModalOpen(true);
+                      }}
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Another day...
+                    </Button>
+                  </PopoverContent>
+                </Popover>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -204,17 +299,36 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
         timeBlock={timeBlock}
       />
 
-      <ConfirmDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={handleDeleteDialogChange}
-        title="Delete Time Block"
-        description={`Are you sure you want to delete "${timeBlock.name}"? This will also delete all notes in this time block.`}
-        confirmLabel="Delete"
-        variant="destructive"
-        onConfirm={handleDelete}
-        isLoading={deleteTimeBlock.isPending}
-        loadingLabel="Deleting..."
-        error={deleteError}
+      {isRecurring ? (
+        <RecurringDeleteDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={handleDeleteDialogChange}
+          timeBlockName={timeBlock.name}
+          onDeleteOccurrence={handleDelete}
+          onStopRecurring={handleStopRecurring}
+          isDeleting={deleteTimeBlock.isPending}
+          isDeactivating={deactivateTemplate.isPending}
+          error={deleteError}
+        />
+      ) : (
+        <ConfirmDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={handleDeleteDialogChange}
+          title="Delete Time Block"
+          description={`Are you sure you want to delete "${timeBlock.name}"? This will also delete all notes in this time block.`}
+          confirmLabel="Delete"
+          variant="destructive"
+          onConfirm={handleDelete}
+          isLoading={deleteTimeBlock.isPending}
+          loadingLabel="Deleting..."
+          error={deleteError}
+        />
+      )}
+
+      <DuplicateTimeBlockModal
+        open={isDuplicateModalOpen}
+        onOpenChange={setIsDuplicateModalOpen}
+        timeBlock={timeBlock}
       />
     </>
   );

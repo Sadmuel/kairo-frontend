@@ -18,6 +18,7 @@ export interface TimeBlock {
   order: number;
   color: string | null;
   dayId: string;
+  templateId: string | null;
   createdAt: string;
   updatedAt: string;
   notes: Note[];
@@ -111,6 +112,19 @@ export interface MoveTodoDto {
   targetTimeBlockId?: string;
 }
 
+export interface DuplicateTimeBlockDto {
+  targetDayId: string;
+  includeNotes?: boolean;
+  includeTodos?: boolean;
+  startTime?: string;
+  endTime?: string;
+}
+
+export interface DuplicateTodoDto {
+  targetDayId?: string;
+  targetTimeBlockId?: string;
+}
+
 export interface ReorderTodosDto {
   orderedIds: string[];
 }
@@ -120,6 +134,53 @@ export interface TodoFilterQuery {
   timeBlockId?: string;
   isCompleted?: boolean;
   inbox?: boolean;
+}
+
+// Time Block Template types
+export interface TemplateNote {
+  id: string;
+  content: string;
+  order: number;
+  templateId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TimeBlockTemplate {
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  color: string | null;
+  daysOfWeek: number[];
+  isActive: boolean;
+  activeUntil: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  notes: TemplateNote[];
+}
+
+export interface CreateTimeBlockTemplateDto {
+  name: string;
+  startTime: string;
+  endTime: string;
+  color?: string;
+  daysOfWeek: number[];
+  notes?: { content: string; order: number }[];
+}
+
+export interface UpdateTimeBlockTemplateDto {
+  name?: string;
+  startTime?: string;
+  endTime?: string;
+  color?: string;
+  daysOfWeek?: number[];
+}
+
+export interface DeactivateTemplateDto {
+  activeUntil?: string;
+  deleteFutureOccurrences?: boolean;
 }
 
 // Event types

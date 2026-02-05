@@ -7,7 +7,8 @@ import {
 } from '@/components/ui/dialog';
 import { TimeBlockForm } from './time-block-form';
 import { useCreateTimeBlock, useUpdateTimeBlock } from '@/hooks/use-time-blocks';
-import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto } from '@/types/calendar';
+import { useCreateTemplate } from '@/hooks/use-time-block-templates';
+import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto, CreateTimeBlockTemplateDto } from '@/types/calendar';
 
 interface TimeBlockModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function TimeBlockModal({
 }: TimeBlockModalProps) {
   const createTimeBlock = useCreateTimeBlock();
   const updateTimeBlock = useUpdateTimeBlock();
+  const createTemplate = useCreateTemplate();
   const isEdit = !!timeBlock;
 
   const handleCreate = async (data: CreateTimeBlockDto) => {
@@ -43,6 +45,16 @@ export function TimeBlockModal({
       toast.success('Time block created');
     } catch {
       toast.error('Failed to create time block');
+    }
+  };
+
+  const handleCreateTemplate = async (data: CreateTimeBlockTemplateDto) => {
+    try {
+      await createTemplate.mutateAsync(data);
+      onOpenChange(false);
+      toast.success('Recurring time block created');
+    } catch {
+      toast.error('Failed to create recurring time block');
     }
   };
 
@@ -82,8 +94,9 @@ export function TimeBlockModal({
             mode="create"
             dayId={dayId ?? ''}
             onSubmit={handleCreate}
+            onSubmitTemplate={handleCreateTemplate}
             onCancel={() => onOpenChange(false)}
-            isPending={createTimeBlock.isPending}
+            isPending={createTimeBlock.isPending || createTemplate.isPending}
           />
         )}
       </DialogContent>

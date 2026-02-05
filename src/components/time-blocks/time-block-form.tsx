@@ -2,15 +2,18 @@ import { useState, FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { TimePicker } from './time-picker';
+import { DayOfWeekPicker } from './day-of-week-picker';
 import { DEFAULT_BLOCK_COLOR } from '@/types/calendar';
-import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto } from '@/types/calendar';
+import type { TimeBlock, CreateTimeBlockDto, UpdateTimeBlockDto, CreateTimeBlockTemplateDto } from '@/types/calendar';
 import { ColorPicker } from '@/components/ui/color-picker';
 
 interface TimeBlockFormCreateProps {
   mode: 'create';
   dayId: string;
   onSubmit: (data: CreateTimeBlockDto) => Promise<void>;
+  onSubmitTemplate?: (data: CreateTimeBlockTemplateDto) => Promise<void>;
   onCancel: () => void;
   isPending?: boolean;
 }
@@ -35,6 +38,8 @@ export function TimeBlockForm(props: TimeBlockFormProps) {
   const [startTime, setStartTime] = useState(timeBlock?.startTime || '09:00');
   const [endTime, setEndTime] = useState(timeBlock?.endTime || '10:00');
   const [color, setColor] = useState(timeBlock?.color || DEFAULT_BLOCK_COLOR);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -57,6 +62,18 @@ export function TimeBlockForm(props: TimeBlockFormProps) {
         startTime,
         endTime,
         color,
+      });
+    } else if (isRecurring && props.mode === 'create' && props.onSubmitTemplate) {
+      if (daysOfWeek.length === 0) {
+        setError('Select at least one day of the week');
+        return;
+      }
+      await props.onSubmitTemplate({
+        name,
+        startTime,
+        endTime,
+        color,
+        daysOfWeek,
       });
     } else {
       await (onSubmit as (data: CreateTimeBlockDto) => Promise<void>)({
@@ -107,6 +124,33 @@ export function TimeBlockForm(props: TimeBlockFormProps) {
         <Label>Color</Label>
         <ColorPicker value={color} onChange={setColor} disabled={isPending} />
       </div>
+
+      {!isEdit && props.mode === 'create' && props.onSubmitTemplate && (
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isRecurring"
+              checked={isRecurring}
+              onCheckedChange={(checked) => setIsRecurring(checked === true)}
+              disabled={isPending}
+            />
+            <Label htmlFor="isRecurring" className="cursor-pointer">
+              Repeats weekly
+            </Label>
+          </div>
+
+          {isRecurring && (
+            <div className="space-y-2">
+              <Label>Days of the week</Label>
+              <DayOfWeekPicker
+                value={daysOfWeek}
+                onChange={setDaysOfWeek}
+                disabled={isPending}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <p className="text-sm text-destructive">{error}</p>

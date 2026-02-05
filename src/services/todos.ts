@@ -6,6 +6,7 @@ import type {
   MoveTodoDto,
   ReorderTodosDto,
   TodoFilterQuery,
+  DuplicateTodoDto,
 } from '@/types/calendar';
 
 export const todosService = {
@@ -48,5 +49,10 @@ export const todosService = {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/todos/${id}`);
+  },
+
+  async duplicate(id: string, data: DuplicateTodoDto): Promise<Todo> {
+    const response = await api.post<Todo>(`/todos/${id}/duplicate`, data);
+    return response.data;
   },
 };

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { GripVertical, Pencil, Trash2, Check, X, Calendar } from 'lucide-react';
+import { GripVertical, Pencil, Trash2, Check, X, Calendar, Copy } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useUpdateTodo, useDeleteTodo } from '@/hooks/use-todos';
+import { useUpdateTodo, useDeleteTodo, useDuplicateTodo } from '@/hooks/use-todos';
 import type { Todo } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 
@@ -17,8 +17,10 @@ interface TodoCardProps {
 export function TodoCard({ todo }: TodoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
+  const [showDuplicateSuccess, setShowDuplicateSuccess] = useState(false);
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
+  const duplicateTodo = useDuplicateTodo();
 
   const {
     attributes,
@@ -72,6 +74,20 @@ export function TodoCard({ todo }: TodoCardProps) {
       toast.success('Todo deleted');
     } catch {
       toast.error('Failed to delete todo');
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      await duplicateTodo.mutateAsync({
+        id: todo.id,
+        data: {}, // Same context
+      });
+      setShowDuplicateSuccess(true);
+      setTimeout(() => setShowDuplicateSuccess(false), 1500);
+      toast.success('Todo duplicated');
+    } catch {
+      toast.error('Failed to duplicate todo');
     }
   };
 
@@ -175,6 +191,20 @@ export function TodoCard({ todo }: TodoCardProps) {
           </div>
           {/* Action buttons */}
           <div className="flex items-center gap-0 opacity-100 sm:gap-1 sm:opacity-0 sm:group-hover:opacity-100">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label="Duplicate todo"
+              className="h-8 w-8 sm:h-7 sm:w-7"
+              onClick={handleDuplicate}
+              disabled={duplicateTodo.isPending}
+            >
+              {showDuplicateSuccess ? (
+                <Check className="h-3.5 w-3.5 text-green-500 sm:h-3 sm:w-3" aria-hidden="true" />
+              ) : (
+                <Copy className="h-3.5 w-3.5 sm:h-3 sm:w-3" aria-hidden="true" />
+              )}
+            </Button>
             <Button
               size="icon"
               variant="ghost"
