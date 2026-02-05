@@ -4,6 +4,7 @@ import type {
   CreateTimeBlockDto,
   UpdateTimeBlockDto,
   ReorderTimeBlocksDto,
+  DuplicateTimeBlockDto,
 } from '@/types/calendar';
 import { daysKeys } from './use-days';
 import { statsKeys } from './use-stats';
@@ -105,6 +106,30 @@ export function useReorderTimeBlocks() {
         queryKey: timeBlocksKeys.byDay(variables.dayId),
       });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
+    },
+  });
+}
+
+// Duplicate time block
+export function useDuplicateTimeBlock() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: DuplicateTimeBlockDto }) =>
+      timeBlocksService.duplicate(id, data),
+    onSuccess: (_, variables) => {
+      // Invalidate target day's time blocks
+      queryClient.invalidateQueries({
+        queryKey: timeBlocksKeys.byDay(variables.data.targetDayId),
+      });
+      // Invalidate all days (for sidebar counts, etc.)
+      queryClient.invalidateQueries({ queryKey: daysKeys.all });
+      // Invalidate stats
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    },
+    onError: (error, variables) => {
+      console.error('Failed to duplicate time block:', error, { id: variables.id });
     },
   });
 }

@@ -56,6 +56,7 @@ export const mockTimeBlock: TimeBlock = {
   order: 0,
   color: '#A5D8FF',
   dayId: 'day-1',
+  templateId: null,
   createdAt: '2024-01-15T00:00:00.000Z',
   updatedAt: '2024-01-15T00:00:00.000Z',
   notes: [mockNote],

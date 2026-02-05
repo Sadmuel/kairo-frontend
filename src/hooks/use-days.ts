@@ -95,3 +95,15 @@ export function useDeleteDay() {
     },
   });
 }
+
+// Ensure day exists (get or create)
+export function useEnsureDay() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (date: string) => daysService.getOrCreate(date),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: daysKeys.all });
+    },
+  });
+}
