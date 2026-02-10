@@ -6,6 +6,7 @@ import type {
   MoveTodoDto,
   ReorderTodosDto,
   TodoFilterQuery,
+  DuplicateTodoDto,
 } from '@/types/calendar';
 import { daysKeys } from './use-days';
 import { timeBlocksKeys } from './use-time-blocks';
@@ -185,6 +186,41 @@ export function useDeleteTodo() {
       queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({ queryKey: daysKeys.all });
       queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
+    },
+  });
+}
+
+// Duplicate todo
+export function useDuplicateTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: DuplicateTodoDto }) =>
+      todosService.duplicate(id, data),
+    onSuccess: (result) => {
+      // Invalidate based on where the todo was created
+      if (result.timeBlockId) {
+        queryClient.invalidateQueries({
+          queryKey: todosKeys.byTimeBlock(result.timeBlockId),
+        });
+      } else if (result.dayId) {
+        queryClient.invalidateQueries({
+          queryKey: todosKeys.byDay(result.dayId),
+        });
+      } else {
+        queryClient.invalidateQueries({
+          predicate: (query) =>
+            query.queryKey[0] === 'todos' && query.queryKey[1] === 'inbox',
+        });
+      }
+      // Also invalidate days for completion counts
+      queryClient.invalidateQueries({ queryKey: daysKeys.all });
+      queryClient.invalidateQueries({ queryKey: timeBlocksKeys.all });
+      queryClient.invalidateQueries({ queryKey: statsKeys.all });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+    },
+    onError: (error, variables) => {
+      console.error('Failed to duplicate todo:', error, { id: variables.id });
     },
   });
 }
