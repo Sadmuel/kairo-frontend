@@ -32,4 +32,12 @@ export const daysService = {
   async delete(id: string): Promise<void> {
     await api.delete(`/days/${id}`);
   },
+
+  async getOrCreate(date: string): Promise<Day> {
+    const existing = await this.getByDate(date);
+    if (existing) {
+      return existing;
+    }
+    return this.create({ date });
+  },
 };
