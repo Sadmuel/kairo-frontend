@@ -3,6 +3,7 @@ import { format, startOfToday, addDays } from 'date-fns';
 import { CalendarDays, ChevronRight, Repeat } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CALENDAR_COMPACT_ACCENT_WIDTH, getCalendarColorStyle } from '@/lib/calendar-colors';
 import type { DashboardEvent } from '@/types/dashboard';
 
 interface UpcomingEventsWidgetProps {
@@ -29,13 +30,12 @@ function formatEventDate(dateStr: string): string {
 
 function EventItem({ event }: { event: DashboardEvent }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border p-3">
+    <div
+      className="flex items-center gap-3 rounded-lg border p-3 text-card-foreground"
+      style={getCalendarColorStyle(event.color, CALENDAR_COMPACT_ACCENT_WIDTH)}
+    >
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xs font-medium"
-        style={{
-          backgroundColor: event.color || '#A5D8FF',
-          color: '#1a1a1a',
-        }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border bg-background/60 text-xs font-medium"
       >
         {parseDateLocal(event.occurrenceDate).getDate()}
       </div>
@@ -43,10 +43,10 @@ function EventItem({ event }: { event: DashboardEvent }) {
         <div className="flex items-center gap-2">
           <span className="truncate font-medium">{event.title}</span>
           {event.isRecurring && (
-            <Repeat className="h-3 w-3 shrink-0 text-muted-foreground" />
+            <Repeat className="h-3 w-3 shrink-0 text-card-foreground/70 dark:text-muted-foreground" />
           )}
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-card-foreground/70 dark:text-muted-foreground">
           {formatEventDate(event.occurrenceDate)}
         </p>
       </div>

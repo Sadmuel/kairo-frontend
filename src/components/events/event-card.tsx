@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useDeleteEvent } from '@/hooks/use-events';
+import { CALENDAR_DAY_ACCENT_WIDTH, getCalendarColorStyle } from '@/lib/calendar-colors';
 import { EventModal } from './event-modal';
 import type { Event, EventOccurrence } from '@/types/calendar';
 
@@ -65,13 +66,11 @@ export function EventCard({ event }: EventCardProps) {
 
   return (
     <>
-      <Card>
-        <div
-          className="flex items-center gap-2 border-l-4 border-l-[--border-color] p-3 sm:gap-3 sm:p-4"
-          style={
-            { '--border-color': event.color || '#A5D8FF' } as React.CSSProperties
-          }
-        >
+      <Card
+        style={getCalendarColorStyle(event.color, CALENDAR_DAY_ACCENT_WIDTH)}
+        className="[&_button.text-destructive]:text-[color-mix(in_srgb,hsl(var(--destructive))_70%,hsl(var(--card-foreground)))]"
+      >
+        <div className="flex items-center gap-2 p-3 sm:gap-3 sm:p-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-medium truncate text-sm sm:text-base">
@@ -79,7 +78,7 @@ export function EventCard({ event }: EventCardProps) {
               </h3>
               {event.isRecurring && (
                 <span
-                  className="flex items-center gap-1 text-xs text-muted-foreground shrink-0"
+                  className="flex items-center gap-1 text-xs text-card-foreground/70 shrink-0 dark:text-muted-foreground"
                   title={`Repeats ${RECURRENCE_LABELS[event.recurrenceType]}`}
                 >
                   <Repeat className="h-3 w-3" />

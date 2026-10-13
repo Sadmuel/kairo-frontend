@@ -61,7 +61,7 @@ Minimum touch target size is **44x44 pixels** (or `h-10 w-10` / `h-11 w-11` in T
   <Checkbox className="h-5 w-5 sm:h-4 sm:w-4" />
 </div>
 
-// Drag handles
+// Drag handles for sortable todos and notes; time blocks have no drag handle
 <button className="flex h-10 w-10 items-center justify-center sm:h-auto sm:w-auto">
   <GripVertical className="h-5 w-5" />
 </button>
@@ -203,6 +203,34 @@ For complex grids that can't collapse (like calendars), use horizontal scroll on
   </CardContent>
 </Card>
 ```
+
+### Calendar Color Surfaces
+
+Use [`getCalendarColorStyle`](../src/lib/calendar-colors.ts) for the shared calendar treatment. It mixes **11% of the saved color with 89% of `hsl(var(--card))`**, using `color || DEFAULT_BLOCK_COLOR`. Keep the full-strength color on the left accent. The helper only returns presentation styles; it does not normalize or persist colors.
+
+| Component | Surface | Left accent |
+|-----------|---------|-------------|
+| Day `TimeBlockCard` | Soft background across the entire card, including expanded details | 6 px |
+| Day `EventCard` | Soft background across the entire card | 6 px |
+| Week time block | Soft background with a neutral 1 px inset contour | 3 px |
+| Week/Month `EventBadge` | Soft background | 3 px |
+| Dashboard `TimeBlockListWidget` rows | Soft background across each time block row | 3 px |
+| Dashboard `UpcomingEventsWidget` rows | Soft background across each event row; neutral, theme-aware date tile | 3 px |
+| Month time block dots | Solid saved color; keep existing 4 px / 6 px dot sizes | Not applicable |
+
+Dashboard statistics widgets do not use this shared surface treatment.
+
+- **Theme-aware text:** use `card-foreground` on tinted surfaces. Week and dashboard secondary text and completed titles, plus Day event recurrence labels, use `text-card-foreground/70 dark:text-muted-foreground`. Day retains its scoped contrast adjustments for secondary text and placeholders. Day event and time block cards share a local destructive-button color that mixes 70% `destructive` with 30% `card-foreground`. Do not derive badge text color from the original solid fill.
+- **Completion:** retain the background and accent at full opacity. Strike through and mute the title; Day also shows the checked checkbox and the dashboard keeps its completion icon. Do not fade the whole time block. The existing event badge hover opacity is a separate interaction state.
+- **Day events:** apply the soft background and 6 px accent to `EventCard` itself, replacing the inner 4 px stripe. Preserve title truncation, recurrence labels, edit/delete controls and dialogs, and the occurrence date passed to the edit form.
+- **Week geometry:** keep time positioning, minimum block height, padding, and horizontal scrolling. Draw the neutral contour with an inset shadow so it does not consume the limited text height of short blocks.
+- **Month density:** keep the existing solid dots, up to three visible blocks, counters, and two visible events per cell. Do not tint an entire day cell or reduce dot opacity to match the larger surfaces.
+- **Dashboard rows:** apply the color to the complete row instead of an interior stripe or solid date tile. Keep the event date tile at 40 × 40 px with a neutral background and theme-aware text. Use `grid-cols-1 md:grid-cols-2` on the dashboard grid so long titles do not expand the mobile layout. Preserve title truncation, recurrence and completion icons, todo counts, local occurrence dates, the five-item limits, overflow counts, and calendar links. Match Day's schedule ordering: sort a copy by `startTime` ascending, then numeric `order` ascending for equal start times, before taking the first five blocks. Upcoming events retain their received order.
+- **Interaction:** preserve badge recurrence icons, truncation, tooltip, and click/Enter/Space behavior. Activating an event must open its modal without also activating the containing day cell.
+
+For changes to these components, compare before/after in light and dark themes at 320, 375, 768, and 1280 px. Include all preset colors, `null`, custom dark/light colors, completed blocks, long titles, short blocks, dense Month cells, dashboard date tiles and counters, and keyboard focus. Check contrast against the composed background, including hover, rather than only the original color swatch. Keep local contrast adjustments scoped to the affected component.
+
+The current compact layouts have known limitations: minimum-height Week blocks can clip their time label at desktop breakpoints, dense Month cells can compress event rows at 320 px, and the badge's native focus outline can be clipped by its wrapper. Closing the event modal currently returns focus to the document body. Preserve the baseline when making visual changes and assess improvements separately; the soft-color treatment does not establish full accessibility compliance.
 
 ### Dialogs/Modals
 

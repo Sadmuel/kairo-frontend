@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Clock, CheckCircle2, Circle, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CALENDAR_COMPACT_ACCENT_WIDTH, getCalendarColorStyle } from '@/lib/calendar-colors';
 import { cn } from '@/lib/utils';
 import type { DashboardTodayDetail, DashboardTimeBlock } from '@/types/dashboard';
 
@@ -16,32 +17,26 @@ function TimeBlockItem({ block }: { block: DashboardTimeBlock }) {
 
   return (
     <div
-      className={cn(
-        'flex items-center gap-3 rounded-lg border p-3 transition-colors',
-        block.isCompleted && 'bg-muted/50'
-      )}
+      className="flex items-center gap-3 rounded-lg border p-3 text-card-foreground transition-colors"
+      style={getCalendarColorStyle(block.color, CALENDAR_COMPACT_ACCENT_WIDTH)}
     >
-      <div
-        className="h-10 w-1 shrink-0 rounded-full"
-        style={{ backgroundColor: block.color || '#A5D8FF' }}
-      />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           {block.isCompleted ? (
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-700 dark:text-green-400" />
           ) : (
-            <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <Circle className="h-4 w-4 shrink-0 text-card-foreground/70 dark:text-muted-foreground" />
           )}
           <span
             className={cn(
               'truncate font-medium',
-              block.isCompleted && 'text-muted-foreground line-through'
+              block.isCompleted && 'text-card-foreground/70 line-through dark:text-muted-foreground'
             )}
           >
             {block.name}
           </span>
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="mt-0.5 flex items-center gap-2 text-xs text-card-foreground/70 dark:text-muted-foreground">
           <span>
             {block.startTime} - {block.endTime}
           </span>
@@ -96,7 +91,9 @@ export function TimeBlockListWidget({ data, isLoading }: TimeBlockListWidgetProp
     );
   }
 
-  const sortedBlocks = [...data.timeBlocks].sort((a, b) => a.order - b.order);
+  const sortedBlocks = [...data.timeBlocks].sort(
+    (a, b) => a.startTime.localeCompare(b.startTime) || a.order - b.order
+  );
   const hasBlocks = sortedBlocks.length > 0;
 
   return (

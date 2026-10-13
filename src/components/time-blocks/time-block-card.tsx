@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { Calendar, Check, ChevronDown, ChevronUp, Copy, GripVertical, Pencil, Repeat, Trash2 } from 'lucide-react';
-import { useSortable, CSS } from '@/lib/dnd-kit';
+import { Calendar, Check, ChevronDown, ChevronUp, Copy, Pencil, Repeat, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatTime } from '@/lib/date-utils';
+import { CALENDAR_DAY_ACCENT_WIDTH, getCalendarColorStyle } from '@/lib/calendar-colors';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUpdateTimeBlock, useDeleteTimeBlock, useDuplicateTimeBlock } from '@/hooks/use-time-blocks';
 import { useDeactivateTemplate } from '@/hooks/use-time-block-templates';
@@ -40,20 +40,7 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   const duplicateTimeBlock = useDuplicateTimeBlock();
   const deactivateTemplate = useDeactivateTemplate();
   const isRecurring = !!timeBlock.templateId;
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: timeBlock.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const style = getCalendarColorStyle(timeBlock.color, CALENDAR_DAY_ACCENT_WIDTH);
 
   const handleToggleComplete = async () => {
     setToggleError(null);
@@ -125,28 +112,17 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   return (
     <>
       <Card
-        ref={setNodeRef}
         style={style}
         className={cn(
           'transition-shadow',
-          isDragging && 'opacity-50 shadow-lg',
-          timeBlock.isCompleted && 'opacity-60'
+          // Keep secondary text and destructive controls legible on the tinted surface.
+          '[--time-block-muted:hsl(var(--card-foreground)/0.7)] dark:[--time-block-muted:hsl(var(--muted-foreground))]',
+          '[&_:where(.text-muted-foreground)]:text-[color:var(--time-block-muted)]',
+          '[&_:where(input)::placeholder]:text-[color:var(--time-block-muted)]',
+          '[&_button.text-destructive]:text-[color-mix(in_srgb,hsl(var(--destructive))_70%,hsl(var(--card-foreground)))]'
         )}
       >
-        <div
-          className="flex items-start gap-2 border-l-4 border-l-[--border-color] p-3 sm:gap-3 sm:p-4"
-          style={{ '--border-color': timeBlock.color || '#A5D8FF' } as React.CSSProperties}
-        >
-          {/* Drag handle - larger touch target on mobile */}
-          <button
-            aria-label="Drag to reorder time block"
-            {...attributes}
-            {...listeners}
-            className="mt-0.5 flex h-10 w-10 cursor-grab items-center justify-center touch-none text-muted-foreground hover:text-foreground sm:h-auto sm:w-auto"
-          >
-            <GripVertical className="h-5 w-5" />
-          </button>
-
+        <div className="flex items-start gap-2 p-3 sm:gap-3 sm:p-4">
           {/* Checkbox - wrapped for better touch target */}
           <div className="mt-0.5 flex h-10 w-10 items-center justify-center sm:h-auto sm:w-auto">
             <Checkbox

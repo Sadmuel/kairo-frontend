@@ -75,10 +75,6 @@ export interface UpdateTimeBlockDto {
   isCompleted?: boolean;
 }
 
-export interface ReorderTimeBlocksDto {
-  orderedIds: string[];
-}
-
 export interface CreateNoteDto {
   content: string;
   timeBlockId: string;
