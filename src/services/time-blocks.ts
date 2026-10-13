@@ -3,7 +3,6 @@ import type {
   TimeBlock,
   CreateTimeBlockDto,
   UpdateTimeBlockDto,
-  ReorderTimeBlocksDto,
   DuplicateTimeBlockDto,
 } from '@/types/calendar';
 
@@ -32,13 +31,6 @@ export const timeBlocksService = {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/time-blocks/${id}`);
-  },
-
-  async reorder(dayId: string, data: ReorderTimeBlocksDto): Promise<TimeBlock[]> {
-    const response = await api.patch<TimeBlock[]>('/time-blocks/reorder', data, {
-      params: { dayId },
-    });
-    return response.data;
   },
 
   async duplicate(id: string, data: DuplicateTimeBlockDto): Promise<TimeBlock> {

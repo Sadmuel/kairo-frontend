@@ -80,14 +80,4 @@ describe('timeBlocksService', () => {
       ).resolves.toBeUndefined();
     });
   });
-
-  describe('reorder', () => {
-    it('reorders time blocks within a day', async () => {
-      const result = await timeBlocksService.reorder('day-1', {
-        orderedIds: ['time-block-2', 'time-block-1'],
-      });
-
-      expect(result).toEqual([mockTimeBlock]);
-    });
-  });
 });

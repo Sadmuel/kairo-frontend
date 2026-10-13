@@ -11,7 +11,7 @@ The name comes from "kairos" (Greek for "the right moment").
 ## Features
 
 - **Calendar Views** - Monthly, weekly, and daily views with smooth navigation
-- **Time Blocks** - Divide days into custom time sections with start/end times
+- **Time Blocks** - Divide days into custom time sections, automatically ordered by start time in the daily view and dashboard schedule
 - **Todos** - General day todos and time block-specific todos with drag-and-drop reordering
 - **Events** - Create events with recurrence support (daily, weekly, monthly, yearly)
 - **Statistics** - Track completion rates and streaks
@@ -28,7 +28,7 @@ The name comes from "kairos" (Greek for "the right moment").
 - **Routing:** React Router v7
 - **HTTP Client:** Axios with automatic token refresh
 - **UI Components:** Radix UI primitives + custom shadcn-inspired components
-- **Drag & Drop:** dnd-kit
+- **Drag & Drop:** dnd-kit for todos and notes; time blocks use chronological ordering in Day and the dashboard schedule
 - **Charts:** Recharts
 - **Testing:** Vitest + Testing Library + MSW
 - **Package Manager:** pnpm
@@ -108,6 +108,7 @@ src/
 │   ├── use-time-blocks # Time blocks data fetching
 │   └── use-todos       # Todos data fetching
 ├── lib/                # Utility functions
+│   ├── calendar-colors # Shared calendar surface colors and accent widths
 │   ├── date-utils      # Date formatting helpers
 │   ├── error           # Error handling utilities
 │   ├── query-client    # TanStack Query configuration
@@ -149,6 +150,9 @@ pnpm test
 # Run tests once
 pnpm test:run
 
+# Run Day and dashboard time block ordering regression tests
+pnpm test:run src/components/__tests__/time-block-list.test.tsx src/components/__tests__/time-block-list-widget.test.tsx
+
 # Run tests with coverage
 pnpm test:coverage
 ```
@@ -170,6 +174,11 @@ Tests are co-located with source files in `__tests__` directories:
 
 ```
 src/
+├── components/
+│   └── __tests__/
+│       ├── time-block-list.test.tsx
+│       ├── time-block-list-widget.test.tsx
+│       └── ...
 ├── lib/
 │   └── __tests__/
 │       ├── date-utils.test.ts
@@ -189,6 +198,8 @@ src/
         ├── use-auth.test.tsx
         └── use-keyboard-shortcuts.test.tsx
 ```
+
+`TimeBlockList` tests cover chronological ordering (including midnight), equal start times resolved by `order`, immutable input, added/edited blocks retaining expanded state by ID, available card actions without a drag handle, and the empty state. `TimeBlockListWidget` tests cover the same ordering rule before the five-item limit, overflow counts, immutable input, and repositioning after a start-time update. The obsolete time block reorder service test and MSW route have been removed. Color, contrast, and responsive layout require browser verification; these component tests do not validate rendered `color-mix()` output.
 
 ## Architecture Decisions
 
@@ -216,6 +227,27 @@ src/
 - Compound components for complex UI (dialogs, popovers)
 - Custom hooks for data fetching with React Query
 - Presentational/container component separation where appropriate
+
+### Time Block Ordering
+
+In Day, [`TimeBlockList`](src/components/time-blocks/time-block-list.tsx) sorts a copy of `day.timeBlocks` by `startTime` ascending, then by numeric `order` ascending when start times match. The dashboard's [`TimeBlockListWidget`](src/components/dashboard/time-block-list-widget.tsx) applies the same rule to a copy of its time blocks before showing the first five. Times use the existing zero-padded 24-hour `HH:mm` format. Names and end times do not determine list order.
+
+Both sorts are derived during rendering: they do not mutate the arrays from React Query or save a new order. Added, duplicated, recurring, or edited blocks take their chronological position when refreshed data reaches each list. Day cards keep their block ID as the React key, preserving local expanded state as their positions change.
+
+| Surface | Time block ordering or placement |
+|---------|---------------------------------|
+| Day | `startTime`, then `order`; no manual drag reordering |
+| Week | Positioned by start/end time in the time grid |
+| Month | Up to three solid dots from the received array, with an additional-count label on larger screens |
+| Dashboard schedule | `startTime`, then `order`; sorts all blocks before showing the first five |
+
+The frontend no longer exposes `useReorderTimeBlocks`, `timeBlocksService.reorder`, or `ReorderTimeBlocksDto`, and no longer calls `PATCH /time-blocks/reorder`. `TimeBlock.order` and optional `CreateTimeBlockDto.order` remain in the data contract. This client change does not remove a backend endpoint or migrate stored data. Todo and note drag-and-drop behavior is unchanged.
+
+### Calendar Colors
+
+[`calendar-colors.ts`](src/lib/calendar-colors.ts) shares the soft background and solid accent treatment between Day time block and event cards, Week time blocks, event badges in Week/Month, and the dashboard's Today's Schedule and Upcoming Events rows. It reuses saved colors and `DEFAULT_BLOCK_COLOR`, including custom colors, without changing the palette or persisted values.
+
+Completed time blocks retain their color and use a muted, struck-through title; Day also retains its completion checkbox and the dashboard retains its completion icon. Day cards use a 6 px accent, while compact calendar items and dashboard rows use 3 px. Upcoming event date tiles use a neutral, theme-aware background. Month time block dots remain solid, and dashboard statistics widgets keep their existing presentation. See [Calendar Color Surfaces](docs/UI_RESPONSIVENESS_STANDARDS.md#calendar-color-surfaces) for exact values, contrast rules, and responsive checks.
 
 ## API Integration
 

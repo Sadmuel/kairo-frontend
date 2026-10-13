@@ -3,7 +3,6 @@ import { timeBlocksService } from '@/services/time-blocks';
 import type {
   CreateTimeBlockDto,
   UpdateTimeBlockDto,
-  ReorderTimeBlocksDto,
   DuplicateTimeBlockDto,
 } from '@/types/calendar';
 import { daysKeys } from './use-days';
@@ -81,31 +80,6 @@ export function useDeleteTimeBlock() {
     },
     onError: (error, variables) => {
       console.error('Failed to delete time block:', error, { id: variables.id, dayId: variables.dayId });
-    },
-  });
-}
-
-// Reorder time blocks
-export function useReorderTimeBlocks() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ dayId, data }: { dayId: string; data: ReorderTimeBlocksDto }) =>
-      timeBlocksService.reorder(dayId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: timeBlocksKeys.byDay(variables.dayId),
-      });
-      // Also invalidate days to update nested timeBlocks
-      queryClient.invalidateQueries({ queryKey: daysKeys.all });
-    },
-    onError: (error, variables) => {
-      console.error('Failed to reorder time blocks:', error);
-      // Refetch to restore correct order from server
-      queryClient.invalidateQueries({
-        queryKey: timeBlocksKeys.byDay(variables.dayId),
-      });
-      queryClient.invalidateQueries({ queryKey: daysKeys.all });
     },
   });
 }

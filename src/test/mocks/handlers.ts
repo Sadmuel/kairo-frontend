@@ -293,11 +293,6 @@ export const handlers = [
     });
   }),
 
-  // Note: More specific routes must come before parameterized routes
-  http.patch(`${API_URL}/time-blocks/reorder`, () => {
-    return HttpResponse.json([mockTimeBlock]);
-  }),
-
   http.patch(`${API_URL}/time-blocks/:id`, async ({ request, params }) => {
     const body = await request.json() as Record<string, unknown>;
     return HttpResponse.json({

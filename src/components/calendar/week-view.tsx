@@ -4,6 +4,7 @@ import { useCalendar } from '@/hooks/use-calendar';
 import { useDaysForWeek } from '@/hooks/use-days';
 import { useEventsForWeek } from '@/hooks/use-events';
 import { getWeekDays, formatDateForApi, isToday, getTimeBlockPosition } from '@/lib/date-utils';
+import { CALENDAR_COMPACT_ACCENT_WIDTH, getCalendarColorStyle } from '@/lib/calendar-colors';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EventBadge } from '@/components/events';
@@ -160,21 +161,26 @@ export function WeekView() {
                         '06:00',
                         '24:00'
                       );
+                      // An inset border preserves the content height of short blocks.
                       return (
                         <div
                           key={block.id}
-                          className={cn(
-                            'absolute inset-x-0.5 overflow-hidden rounded px-1 py-0.5 text-[10px] bg-[--block-bg] sm:inset-x-1 sm:rounded-md sm:px-2 sm:py-1 sm:text-xs',
-                            block.isCompleted && 'opacity-60'
-                          )}
+                          className="absolute inset-x-0.5 overflow-hidden rounded border-l px-1 py-0.5 text-[10px] text-card-foreground shadow-[inset_0_0_0_1px_hsl(var(--border))] sm:inset-x-1 sm:rounded-md sm:px-2 sm:py-1 sm:text-xs"
                           style={{
-                            '--block-bg': block.color || '#A5D8FF',
+                            ...getCalendarColorStyle(block.color, CALENDAR_COMPACT_ACCENT_WIDTH),
                             top: `${top}%`,
                             height: `${Math.max(height, 4)}%`,
-                          } as React.CSSProperties}
+                          }}
                         >
-                          <div className="truncate font-medium text-gray-900">{block.name}</div>
-                          <div className="text-[8px] text-gray-700 sm:text-[10px]">
+                          <div
+                            className={cn(
+                              'truncate font-medium',
+                              block.isCompleted && 'line-through text-card-foreground/70 dark:text-muted-foreground'
+                            )}
+                          >
+                            {block.name}
+                          </div>
+                          <div className="text-[8px] text-card-foreground/70 dark:text-muted-foreground sm:text-[10px]">
                             {block.startTime} - {block.endTime}
                           </div>
                         </div>
