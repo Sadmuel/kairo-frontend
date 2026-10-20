@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Calendar, Check, ChevronDown, ChevronUp, Copy, Pencil, Repeat, Trash2 } from 'lucide-react';
+import { Calendar, Check, ChevronDown, Copy, Pencil, Repeat, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
+import { CollapsibleContent } from '@/components/ui/collapsible-content';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { formatTime } from '@/lib/date-utils';
@@ -28,6 +29,12 @@ interface TimeBlockCardProps {
 
 export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const contentId = `time-block-details-${timeBlock.id}`;
+  const previewId = `time-block-preview-${timeBlock.id}`;
+  const notesCount = timeBlock.notes.length;
+  const todosCount = timeBlock.todos?.length ?? 0;
+  const hasPreview = notesCount > 0 || todosCount > 0;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
@@ -225,23 +232,29 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                   <Trash2 className="h-4 w-4" />
                 </Button>
                 <Button
+                  ref={triggerRef}
+                  type="button"
                   variant="ghost"
                   size="icon"
                   aria-label={isExpanded ? 'Collapse details' : 'Expand details'}
+                  aria-expanded={isExpanded}
+                  aria-controls={contentId}
                   className="h-10 w-10 sm:h-9 sm:w-9"
-                  onClick={() => setIsExpanded(!isExpanded)}
+                  onClick={(event) => {
+                    if (isExpanded) event.currentTarget.focus();
+                    setIsExpanded(!isExpanded);
+                  }}
                 >
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  <ChevronDown
+                    className="h-4 w-4 collapsible-chevron"
+                    data-expanded={isExpanded}
+                  />
                 </Button>
               </div>
             </div>
 
             {/* Todos and Notes section (expanded) */}
-            {isExpanded && (
+            <CollapsibleContent id={contentId} open={isExpanded} triggerRef={triggerRef}>
               <div className="mt-3 pt-3 border-t space-y-4">
                 <TodoSection
                   timeBlockId={timeBlock.id}
@@ -249,21 +262,16 @@ export function TimeBlockCard({ timeBlock, dayId }: TimeBlockCardProps) {
                 />
                 <NoteSection timeBlockId={timeBlock.id} notes={timeBlock.notes} />
               </div>
-            )}
+            </CollapsibleContent>
 
             {/* Notes/Todos preview (collapsed) */}
-            {(() => {
-              const notesCount = timeBlock.notes.length;
-              const todosCount = timeBlock.todos?.length ?? 0;
-              if (isExpanded || (notesCount === 0 && todosCount === 0)) return null;
-              return (
-                <p className="mt-1 text-sm text-muted-foreground truncate">
-                  {notesCount > 0 && `${notesCount} note${notesCount > 1 ? 's' : ''}`}
-                  {notesCount > 0 && todosCount > 0 && ', '}
-                  {todosCount > 0 && `${todosCount} todo${todosCount > 1 ? 's' : ''}`}
-                </p>
-              );
-            })()}
+            <CollapsibleContent id={previewId} open={!isExpanded && hasPreview}>
+              <p className="mt-1 text-sm text-muted-foreground truncate">
+                {notesCount > 0 && `${notesCount} note${notesCount > 1 ? 's' : ''}`}
+                {notesCount > 0 && todosCount > 0 && ', '}
+                {todosCount > 0 && `${todosCount} todo${todosCount > 1 ? 's' : ''}`}
+              </p>
+            </CollapsibleContent>
           </div>
         </div>
       </Card>

@@ -247,6 +247,18 @@ The current compact layouts have known limitations: minimum-height Week blocks c
 </DialogContent>
 ```
 
+### Expandable Calendar Sections
+
+Use `CollapsibleContent` for time block details, their summary preview, Notes, Todos, and Day Tasks. Keep the existing initial states: time blocks closed; Notes, Todos, and Day Tasks open.
+
+- **Motion:** animate CSS Grid rows from `0fr` to `1fr` over `400ms` with `cubic-bezier(.2, 0, 0, 1)`. Rotate the same chevron by 180 degrees using the shared CSS tokens. `prefers-reduced-motion: reduce` removes motion and immediately settles mounted content, including when the preference changes during a transition.
+- **Presence:** keep the wrapper and its ID mounted so `aria-controls` always resolves. Mount children on first expansion, retain them during closing, and unmount after closing finishes. Reopening during closing preserves the draft; reopening after a full close resets it. Initially open content has no entrance animation.
+- **Layout:** put spacing and borders inside the animated body. The time block summary uses an inverse expansion with the same tokens. Clip only while closed or moving, then restore visible overflow for sortable rows and focus rings. Keep the grid column and clipping wrapper's horizontal minimum at zero. Do not measure content height, set a maximum height, or animate transforms on sortable rows.
+- **Interaction:** triggers use `aria-expanded`, `aria-controls`, and `type="button"`; focus the trigger before closing. Closing content becomes `inert` and `aria-hidden` immediately. `CollapsibleOpenContext` combines parent and child visibility without starting another size animation in every descendant.
+- **Portals:** the todo deadline popover closes immediately when its section or time block closes. Suppress its delayed focus restoration to an inactive or detached trigger; reopening the section must not reopen the popover. Outside a collapsible region, the context defaults to open.
+
+Verify rapid reversals, a full close and reopen, reduced motion changes, nested sections, keyboard focus, and the real deadline portal. Check both pointer and keyboard sorting after expansion, including closing during a drag. Compare baseline and updated geometry in light/dark at 320, 375, 768, and 1280 px with empty and long content. Grid transitions still perform layout; confirm there are no per-frame React updates or size measurements.
+
 ### Action Buttons in Lists
 
 On mobile, action buttons should be always visible (not just on hover).

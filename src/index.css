@@ -29,6 +29,8 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --collapsible-duration: 400ms;
+    --collapsible-easing: cubic-bezier(.2, 0, 0, 1);
   }
 
   .dark {
@@ -64,5 +66,48 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer components {
+  .collapsible-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows var(--collapsible-duration) var(--collapsible-easing);
+  }
+
+  .collapsible-content[data-expanded='true'] {
+    grid-template-rows: 1fr;
+  }
+
+  .collapsible-clip {
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .collapsible-content[data-state='open'],
+  .collapsible-content[data-state='open'] > .collapsible-clip {
+    overflow: visible;
+  }
+
+  .collapsible-body {
+    display: flow-root;
+  }
+
+  .collapsible-chevron {
+    transition: transform var(--collapsible-duration) var(--collapsible-easing);
+  }
+
+  .collapsible-chevron[data-expanded='true'] {
+    transform: rotate(180deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --collapsible-duration: 0ms;
   }
 }
