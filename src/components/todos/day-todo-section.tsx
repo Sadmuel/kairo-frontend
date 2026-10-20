@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
-import { ChevronDown, ChevronUp, ListTodo } from 'lucide-react';
+import { useState, useCallback, useRef } from 'react';
+import { ChevronDown, ListTodo } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { CollapsibleContent } from '@/components/ui/collapsible-content';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TodoList } from './todo-list';
 import { useTodosByDay } from '@/hooks/use-todos';
@@ -12,6 +13,7 @@ interface DayTodoSectionProps {
 
 export function DayTodoSection({ dayId, ensureDayId }: DayTodoSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const { data: todos = [], isLoading } = useTodosByDay(dayId);
   const contentId = `day-todos-${dayId ?? 'new'}`;
 
@@ -26,8 +28,13 @@ export function DayTodoSection({ dayId, ensureDayId }: DayTodoSectionProps) {
   return (
     <Card className="p-3 sm:p-4">
       <button
+        ref={triggerRef}
+        type="button"
         className="flex w-full items-center justify-between text-sm font-medium hover:text-foreground"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={(event) => {
+          if (isExpanded) event.currentTarget.focus();
+          setIsExpanded(!isExpanded);
+        }}
         aria-expanded={isExpanded}
         aria-controls={contentId}
       >
@@ -40,15 +47,14 @@ export function DayTodoSection({ dayId, ensureDayId }: DayTodoSectionProps) {
             </span>
           )}
         </span>
-        {isExpanded ? (
-          <ChevronUp className="h-4 w-4" />
-        ) : (
-          <ChevronDown className="h-4 w-4" />
-        )}
+        <ChevronDown
+          className="h-4 w-4 collapsible-chevron"
+          data-expanded={isExpanded}
+        />
       </button>
 
-      {isExpanded && (
-        <div id={contentId} className="mt-3 pt-3 border-t">
+      <CollapsibleContent id={contentId} open={isExpanded} triggerRef={triggerRef}>
+        <div className="mt-3 pt-3 border-t">
           {isLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-8 w-full" />
@@ -62,7 +68,7 @@ export function DayTodoSection({ dayId, ensureDayId }: DayTodoSectionProps) {
             />
           )}
         </div>
-      )}
+      </CollapsibleContent>
     </Card>
   );
 }

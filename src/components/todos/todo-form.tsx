@@ -1,9 +1,10 @@
-import { useState, FormEvent } from 'react';
+import { useContext, useLayoutEffect, useRef, useState, FormEvent } from 'react';
 import { toast } from 'sonner';
 import { Plus, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CollapsibleOpenContext } from '@/components/ui/collapsible-context';
 import { useCreateTodo } from '@/hooks/use-todos';
 import { cn } from '@/lib/utils';
 
@@ -19,7 +20,18 @@ export function TodoForm({ dayId, timeBlockId, onBeforeCreate }: TodoFormProps) 
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeadline, setShowDeadline] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isOpen = useContext(CollapsibleOpenContext);
+  const deadlineTriggerRef = useRef<HTMLButtonElement>(null);
+  const closedByAncestorRef = useRef(false);
   const createTodo = useCreateTodo();
+
+  if (!isOpen && showDeadline) {
+    setShowDeadline(false);
+  }
+
+  useLayoutEffect(() => {
+    if (!isOpen) closedByAncestorRef.current = true;
+  }, [isOpen]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -90,18 +102,38 @@ export function TodoForm({ dayId, timeBlockId, onBeforeCreate }: TodoFormProps) 
           }}
           className="h-8 text-sm"
         />
-        <Popover open={showDeadline} onOpenChange={setShowDeadline}>
+        <Popover
+          open={showDeadline && isOpen}
+          onOpenChange={(open) => {
+            if (open && isOpen) closedByAncestorRef.current = false;
+            setShowDeadline(open && isOpen);
+          }}
+        >
           <PopoverTrigger asChild>
             <Button
+              ref={deadlineTriggerRef}
               type="button"
               size="icon"
               variant="ghost"
+              aria-label="Set todo deadline"
               className={cn('h-8 w-8', deadline && 'text-primary')}
             >
               <Calendar className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-3" align="end">
+          <PopoverContent
+            className="w-auto p-3"
+            align="end"
+            hidden={!isOpen}
+            inert={!isOpen}
+            onCloseAutoFocus={(event) => {
+              const trigger = deadlineTriggerRef.current;
+              // Radix restores focus after unmount; a closing ancestor owns focus now.
+              if (closedByAncestorRef.current || !trigger?.isConnected || trigger.closest('[inert]')) {
+                event.preventDefault();
+              }
+            }}
+          >
             <div className="space-y-2">
               <label htmlFor="todo-deadline" className="text-sm font-medium">Deadline</label>
               <Input
